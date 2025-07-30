@@ -1,0 +1,23 @@
+{
+  "id_page1": {
+    "title": "Pagina 1 Titel",
+    "icon": "wrench",
+    "modules": {
+      "id_mod2": {
+        "class": "Histogram",
+        "imports": {"number_bins": ["id_page2","id_mod1","slider_value"]}
+      }
+    },
+    "layout": {}
+  },
+  "id_page2": {
+    "title": "Pagina 2 Titel",
+    "icon": "cog",
+    "modules": {
+      "id_mod1": {
+        "class": "Slider"
+      }
+    },
+    "layout": {}
+  }
+}
