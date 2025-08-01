@@ -3,20 +3,31 @@
     "title": "Pagina 1 Titel",
     "icon": "wrench",
     "modules": {
+      "id_mod1": {
+        "class": "Slider"
+      },
       "id_mod2": {
         "class": "Histogram",
-        "imports": {"number_bins": ["id_page2","id_mod1","slider_value"]}
+        "imports": {"number_bins": ["id_page1","id_mod1","slider_value"]}
+      },
+      "id_mod3": {
+        "class": "Slider"
+      },
+      "id_mod4": {
+        "class": "Histogram",
+        "imports": {"number_bins": ["id_page1","id_mod3","slider_value"]}
       }
     },
-    "layout": {}
+    "layout": [
+      [[6, "id_mod1"], [6, "id_mod2"]],
+      [[6, "id_mod3"], [6, "id_mod4"]]
+    ]  
   },
   "id_page2": {
     "title": "Pagina 2 Titel",
     "icon": "cog",
     "modules": {
-      "id_mod1": {
-        "class": "Slider"
-      }
+      
     },
     "layout": {}
   }

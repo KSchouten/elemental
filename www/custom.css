@@ -1,0 +1,158 @@
+/* Our color palette:
+*/
+:root {
+
+  /* basic grey values */
+  --black-text: #101010;
+  --grey-dark: #444;
+  --grey-medium-dark: #5c5c5c;
+  --grey: #80889D;
+  --grey-button: #979EAF;
+  --grey-light: #C3C7D3;
+  --grey-default-bg: #f4f6f9;
+  --grey-verylight: #eff2f9;
+
+  /* base colors */
+  --blue-bright: #d1eefb;
+  --blue-dark: #253077;
+  --blue-medium-dark: #4267b1; /* not in official color palette, needed for links */
+  --blue: #699fd6;
+  --blue-light: #b8dcf7;
+  --blue-verylight: #deeefa; /* not in official color palete */
+  --blue-extremelight: #f0f7fc; /* not in official color palete */
+  --green-dark: #263f35;
+  --green: #418677;
+  --green-light: #cde2d8;
+
+  /* Accent colors */
+  --blue-green: #4399ad;
+  --blue-green-light: #C4E2E8;
+  --pink: #e39cbe;
+  --pink-light: #FBEFF5;
+  --red: #aa2c31;
+  --red-dark: #8d1c21;
+  --limegreen: #D3DF46;
+  --limegreen-light: #eaf19e; /* not in official color palete */
+  --orange: #eb5d41;
+  --orange-light: #ffb7a9; /* not in official color palette */
+  --purple: #9d8ed6; /*not the purple from the official color palette (#862f82) */
+  --green-accent: #2dad70;
+  --gold: #A36F13;
+
+  /* Variables to conveniently change a colour in multiple places at once */
+  --header-bg: var(--blue-bright);
+  --dimensie-c: var(--green);
+  --dimensie-w: var(--blue-dark);
+  --infobox: var(--blue-green);
+  --infobox-light: var(--grey-verylight);
+  --selected-aanbieder: var(--pink);
+  --risk-or-warning: var(--orange);
+
+}
+
+.page-container.layout-visible {
+  padding-top: 0px;
+}
+
+.page-layout-row.layout-visible {
+  background-color: #d1eefb30;
+  border-style: solid;
+  border-color: darkgrey;
+  border-width: 0px;
+  box-shadow: 5px 5px 15px grey;
+  padding: 10px;
+  
+}
+
+.page-layout-column.layout-visible {
+  background-color: #d1eefb30;
+  border-style: solid;
+  border-color: darkgrey;
+  border-width: 0px;
+  box-shadow: 5px 5px 15px grey;
+  padding: 10px;
+}
+
+.page-layout-control.layout-visible {
+  padding: 10px;
+  margin: -10px;
+}
+
+.row-layout-control.layout-visible {
+  background-color: #d1eefb60;
+  padding-top: 10px;
+  margin-left: -10px;
+  margin-right: -10px;
+  margin-top: -10px;
+}
+
+.col-layout-control.layout-visible {
+  background-color: #d1eefb60;
+  padding-top: 10px;
+  margin-top: -10px;
+  margin-left: -10px;
+  margin-right: -10px;
+}
+
+.page-container.layout-invisible {
+  padding: 5px;
+}
+
+.page-layout-row.layout-invisible {
+  padding: 10px;
+}
+
+.page-layout-column.layout-invisible {
+  padding: 10px;
+}
+
+.page-layout-control.layout-invisible {
+  padding: 10px;
+}
+
+.row-layout-control.layout-invisible {
+  padding: 10px;
+}
+.row-layout-control.layout-invisible > button {
+  display:none;
+}
+
+.col-layout-control.layout-invisible {
+  padding: 10px;
+}
+.col-layout-control.layout-invisible > button {
+  display:none;
+}
+
+
+.col-sizer .fas {
+  transform: rotate(45deg);
+}
+.col-sizer {
+  margin-bottom: 10px;
+}
+
+.icon-stack-plus.fa-stack {
+  width: 2em;
+  font-size: 0.5em;
+}
+
+.icon-stack-plus .fas {
+  transform: none;
+}
+
+.icon-stack-plus .fa-stack-1x {
+  left: 10px;
+  top: 5px;
+}
+
+/* Custom table rows icon because the fontawesome table-rows icon is not free. */
+.table-rows-icon {
+  background: url('table_rows.svg');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 14px;
+  width: 14px;
+  display: block;
+}

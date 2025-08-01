@@ -83,6 +83,7 @@ Module <- R6::R6Class(
           observe({
             quote({
               print(stringr::str_c("[", session$ns(""), "] execute observer for: ", stringr::str_c(input_path, collapse = ", ")))
+              
               if ("Module" %in% class(private$globals$pages[[input_path[1]]]$get_module(input_path[2]))){
                 # this page has been load and its modules have been initialized so they can be referred to
                 module_inputs[[varname]] <- private$globals$pages[[input_path[1]]]$get_module(input_path[2])$get_output(input_path[3])

@@ -9,6 +9,7 @@
 
 library(shiny)
 library(dplyr)
+source("utils.R")
 source("page.R")
 source("module.R")
 source("modules/mod_slider.R")
@@ -23,6 +24,12 @@ ui <- tagList(
   rintrojs::introjsUI(),
   # Use shinyFeedback
   shinyFeedback::useShinyFeedback(),
+  # Custom CSS
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+    # Custom JS
+    tags$head(tags$script(src = "script.js"))
+  ),
   
   # Show loading screen when app is loading
   waiter::use_waiter(),
@@ -99,12 +106,13 @@ server <- function(input, output, session) {
   
   # Autologin user (locally or with url) and load page setup
   # Currently loads defaulty page setup from pages.json
-  globals$pages <- purrr::imap(jsonlite::read_json("pages.json", simplifyVector = TRUE), function(page, id){
+  globals$user <- "test"
+  globals$pages <- purrr::imap(jsonlite::read_json("pages.json"), function(page, id){
     Page$new(id, page$title, page$icon, globals, reactiveValues(
       !!!purrr::imap(page$modules, function(module, id){
         list(class = get(module$class), imports = module$imports)
       })
-    ))
+    ), page$layout)
   }) 
   
   # Preload allowed modules to save time on a lookup per module
