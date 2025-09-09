@@ -13,6 +13,7 @@ Module <- R6::R6Class(
     group = NA_character_,
     singleton = FALSE,
     
+    title = NA_character_,
     globals = list(),
     module_inputs = list(),
     module_outputs = list(),
@@ -36,9 +37,14 @@ Module <- R6::R6Class(
   ),
   
   public = list(
-    initialize = function(id, full_id, globals, module_inputs){
+    initialize = function(id, full_id, title, globals, module_inputs){
       private$id <- id
       private$full_id <- full_id
+      if (!is.null(title)){
+        private$title <- title
+      } else {
+        private$title <- private$default_name
+      }
       private$globals <- globals
       private$module_inputs <- module_inputs
     },
@@ -48,6 +54,12 @@ Module <- R6::R6Class(
     },
     get_full_id = function(){
       return(private$full_id)
+    },
+    get_default_name = function(){
+      return(private$default_name)
+    },
+    get_title = function(){
+      return(private$title)
     },
     get_active = function(){
       return(private$active)

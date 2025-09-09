@@ -1,9 +1,10 @@
 {
   "id_page1": {
-    "title": "Pagina 1 Titel",
+    "title": "Page 1",
     "icon": "wrench",
     "modules": {
       "id_mod1": {
+        "title": "slider title",
         "class": "Slider"
       },
       "id_mod2": {
@@ -11,20 +12,26 @@
         "imports": {"number_bins": ["id_page1","id_mod1","slider_value"]}
       },
       "id_mod3": {
+        "title": "another slider",
         "class": "Slider"
       },
       "id_mod4": {
+        "title": "another histogram",
         "class": "Histogram",
         "imports": {"number_bins": ["id_page1","id_mod3","slider_value"]}
+      },
+      "id_mod5": {
+        "title": "filler",
+        "class": "Text"
       }
     },
     "layout": [
-      [[6, "id_mod1"], [6, "id_mod2"]],
-      [[6, "id_mod3"], [6, "id_mod4"]]
+      ["1fr 2fr", [["A title", "id_mod5"],["Control", "id_mod1"]], [["Results", "id_mod2"]]],
+      ["2fr 1fr", [["Multi-tabs", "id_mod3", "id_mod4"]]]
     ]  
   },
   "id_page2": {
-    "title": "Pagina 2 Titel",
+    "title": "Page 2",
     "icon": "cog",
     "modules": {
       

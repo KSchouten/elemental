@@ -14,6 +14,7 @@ source("page.R")
 source("module.R")
 source("modules/mod_slider.R")
 source("modules/mod_histogram.R")
+source("modules/mod_text.R")
 
 # Define UI for application
 ui <- tagList(
@@ -35,58 +36,19 @@ ui <- tagList(
   waiter::use_waiter(),
   waiter::waiter_show_on_load(html = waiter::spin_3k(), color = waiter::transparent(alpha = 0)),
   
-  # Define this page as a dashboard page to signal we're using the dashboard page plus format
-  shinydashboardPlus::dashboardPage(
-    title = "Elemental Demo",
-    # Create dashboard header on top  
-    header = shinydashboardPlus::dashboardHeader(
-      tags$li(class = "dropdown",
-              "Logo"
-      ),
-      tags$li(class = "dropdown",
-              actionLink("account", label = "Inloggen", icon = icon("user", style = "padding-right: 10px;")))
-    ),
+  page_navbar(
+    title = "Elemental",
+    id = "page",
+    lang = "en",
+    gap = "5px",
+    fillable = FALSE,
     
-    # Create our navigation menu
-    sidebar = shinydashboardPlus::dashboardSidebar(
-      width = 248,
-      uiOutput("menu"),
-      actionLink("toggle_sidebar",
-                 label = "Klap het menu in",
-                 icon = icon("angles-left"))
-    ),
-    
-    # Create right sidebar (controlbar - contains the page and box settings)
-    controlbar = shinydashboardPlus::dashboardControlbar(
-      id = "controlbar",
-      width = 300,
-      overlay = FALSE,
-      shinydashboardPlus::controlbarMenu(
-        id = "sidemenu",
-        shinydashboardPlus::controlbarItem(
-          "Pagina",
-          uiOutput("customize")
-        ),
-        shinydashboardPlus::controlbarItem(
-          "Tegel",
-          uiOutput("box_settings")
-        ),
-        shinydashboardPlus::controlbarItem(
-          "Module",
-          uiOutput("module_settings")
-        ),
-        shinydashboardPlus::controlbarItem(
-          "",
-          icon = icon("circle-info", id = "start_introtour") %>% tagAppendAttributes(class = "page-settings-introtour-icon")
-        )
-      )
-    ),
-    
-    # Main body of dashboard
-    body = shinydashboard::dashboardBody(
-      
-      uiOutput("tabs")
-      
+    nav_spacer(),
+    nav_menu(
+      title = "Links",
+      align = "right",
+      nav_item(tags$a(shiny::icon("github"), "Shiny", href = "https://github.com/rstudio/shiny", target = "_blank")),
+      nav_item(tags$a(shiny::icon("r-project"), "Posit", href = "https://posit.co", target = "_blank"))
     )
   )
   
@@ -105,40 +67,28 @@ server <- function(input, output, session) {
   # Check url for params
   
   # Autologin user (locally or with url) and load page setup
-  # Currently loads defaulty page setup from pages.json
+  # Currently loads default page setup from pages.json
   globals$user <- "test"
   globals$pages <- purrr::imap(jsonlite::read_json("pages.json"), function(page, id){
     Page$new(id, page$title, page$icon, globals, reactiveValues(
       !!!purrr::imap(page$modules, function(module, id){
-        list(class = get(module$class), imports = module$imports)
+        list(class = get(module$class), title=module$title, imports = module$imports)
       })
     ), page$layout)
   }) 
   
   # Preload allowed modules to save time on a lookup per module
   
-  # Render main menu UI -- each page becomes a menuItem
-  # Generate menuItems from the spec in pages
-  output$menu <- renderUI({
-    shinydashboard::sidebarMenu(
-      id = "page",
-      .list = purrr::map(globals$pages, ~.$get_menu_item()) %>% setNames(NULL)
-    )
-  }) 
-  
-  # Render main content UI -- each page becomes a tabItem, linked to the menuItems
-  # Generate tabItems, linked to the menuItems, from the spec in page_spec
-  output$tabs <- renderUI({
-    # This is the shinydashboard::tabItems function, but without its built-in check
-    #   This check fails on lists, even though the div function within can perfectly handle it
-    div(class  = "tab-content",
-        # Notice the hard-coded mod_page_ui here
-        purrr::map(globals$pages, ~.$get_ui())
-    )
+  # Add pages to main UI
+  observe({
+
+    purrr::walk(rev(globals$pages), function(page){
+      nav_insert("page", page$get_ui(), NULL, "before")
+    })
+
   })
   
-  # Render controlbar UI
-  
+
   # Obs. change in selected page -- start module for newly clicked pages
   observe({
     req(input$page)
