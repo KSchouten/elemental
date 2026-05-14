@@ -131,8 +131,8 @@ Module <- R6::R6Class(
           module_data <<- NULL
           
           # Use some internal trickery to remove input values
-          #   If we do not do this, then creating a new sort on the same column will reuse the old values for buttons
-          #   and immediately trigger observers (incl. the remove one)
+          #   If we do not do this, then creating a new instance of this module might reuse the old values for buttons
+          #   and immediately trigger any related observers
           purrr::walk(ns(names(input)), .subset2(input, "impl")$.values$remove)
           module_outputs <<- NULL
         }

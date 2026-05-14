@@ -50,6 +50,50 @@
 
 }
 
+/*
+.layout:hover {
+  border-style: solid;
+  border-color: darkgrey;
+  border-width: 0px;
+  box-shadow: 5px 5px 15px grey;
+}
+.layout:hover div {
+  opacity: 0.75;
+}
+*/
+
+.layout-visible {
+  border-style: solid;
+  border-color: darkgrey;
+  border-width: 0px;
+  box-shadow: 5px 5px 15px grey;
+  padding: 10px;
+}
+.layout-visible div {
+  opacity: 0.75;
+  z-index: -10;
+}
+
+.gutter {
+    background-color: #eee;
+    background-repeat: no-repeat;
+    background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+    cursor: col-resize;
+}
+
+.square-button {
+  height: 40px;
+  width: 40px;
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
+
+
 .page-container.layout-visible {
   padding-top: 0px;
 }

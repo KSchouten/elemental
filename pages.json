@@ -26,9 +26,22 @@
       }
     },
     "layout": [
-      ["1fr 2fr", [["A title", "id_mod5"],["Control", "id_mod1"]], [["Results", "id_mod2"]]],
-      ["2fr 1fr", [["Multi-tabs", "id_mod3", "id_mod4"]]]
-    ]  
+      {"column_sizes": [30, 70], "columns": [
+        {"tiles": [
+          {"title":"A title", "modules": ["id_mod5"]},
+          {"title":"Control", "modules": ["id_mod1"]}
+        ]},
+        {"tiles": [
+          {"title": "Results", "modules": ["id_mod2"]}
+        ]}
+      ]},
+      {"column_sizes": [100], "columns": [
+        {"tiles": [
+          {"title": "Multi-tabs", "modules":  ["id_mod3", "id_mod4"]},
+          {"title": "Leeg"}
+        ]}
+      ]}
+    ]
   },
   "id_page2": {
     "title": "Page 2",
@@ -36,6 +49,14 @@
     "modules": {
       
     },
-    "layout": {}
+    "layout": [
+      {"column_sizes": [20, 30, 50], "columns": [
+        {"tiles": [
+          {"title": "Nieuw", "modules": []}
+        ]},
+        {"tiles": []},
+        {"tiles": []}
+      ]}
+    ]  
   }
 }
