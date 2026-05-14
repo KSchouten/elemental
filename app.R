@@ -158,6 +158,11 @@ server <- function(input, output, session) {
       # if moving a tab to an empty panel, select it automatically
       if (is.null(input[[input$move_module$to_tile]])){
         nav_select(input$move_module$to_tile, input$move_module$tab_id)
+        # ensure that Shiny know this panel is visible so it will actually render outputs
+        shinyjs::runjs(stringr::str_c("
+          $('[data-value=\"", input$move_module$tab_id,"\"]').show();
+          $('[data-value=\"", input$move_module$tab_id,"\"]').trigger('shown');
+        "))
       }
       
     } else {

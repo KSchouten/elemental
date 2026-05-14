@@ -115,7 +115,7 @@ Page <- R6::R6Class(
                                title = mod$get_title(),
                                value = mod$get_id(),
                                mod$get_ui()
-                             ), position = "before", select = (mod_idx == length(tile$modules))
+                             ), position = "before", select = TRUE
                   )
                   # tabcontent divs are always inserted at the end, regardless of the "before" setting of nav_insert
                   # this javascript swaps the order of the content div so it matches with the tab order
