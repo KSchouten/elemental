@@ -82,6 +82,9 @@ Page <- R6::R6Class(
         # Start server functions of modules
         purrr::walk(names(private$modules), ~private$modules[[.]]$start_server())
         
+        # UI observers for generated buttons
+        observers <- list()
+        
         # manipulate UI after rendering, do the UI things that we need a reactive context for
         # - initialize splitJS
         # - add column background controls
@@ -97,8 +100,46 @@ Page <- R6::R6Class(
             
             #add background controls for each column
             purrr::iwalk(row$columns, function(col, col_idx){
-              col_id <- ns(stringr::str_c("col", row_idx, col_idx, sep = "-"))
-              insert_background_controls(col_id)
+              col_id <- stringr::str_c("col", row_idx, col_idx, sep = "-")
+              insert_background_controls(ns(col_id))
+              
+              observers[[col_id]] <- list(
+                addtile = observe({
+                  addtile <- stringr::str_c(col_id, "-addtile")
+                  req(input[[addtile]])
+                  print(addtile)
+                }),
+                # Remove column
+                removecolumn = observe({
+                  removecolumn <- stringr::str_c(col_id, "-removecolumn")
+                  req(input[[removecolumn]])
+                  new_col_sizes <- unlist(row$column_sizes[-col_idx])
+                  row$column_sizes <<- new_col_sizes / sum(new_col_sizes) * 100
+                  # remove gutters, remove div, reset grid-template-columns, re-init split
+                  shinyjs::runjs(stringr::str_c("
+                    $('#",row_id," > .gutter').remove()
+                    $('#",row_id,"').children().eq(",col_idx-1,").remove()
+                    $('#",row_id,"').css('grid-template-columns', '", stringr::str_c(new_col_sizes, "fr", collapse = " 10px "), "');
+                    Split($('#",row_id, " > div'), {sizes: [",new_col_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250})
+                  "))
+                  # remove observers for this column
+                  purrr::walk(observers[[col_id]], ~.$destroy())
+                  # update row variable for later
+                  row$columns <<- row$columns[-col_idx] 
+                  
+                  print(removecolumn)
+                }),
+                addcolumnbefore = observe({
+                  addcolumnbefore <- stringr::str_c(col_id, "-addcolumnbefore")
+                  req(input[[addcolumnbefore]])
+                  print(addcolumnbefore)
+                }),
+                addcolumnafter = observe({
+                  addcolumnafter <- stringr::str_c(col_id, "-addcolumnafter")
+                  req(input[[addcolumnafter]])
+                  print(addcolumnafter)
+                })
+              )
               
               # insert the module UI's as they are only loaded when the page is first visited
               
