@@ -79,7 +79,7 @@ ElementalRow <- R6::R6Class(
     remove_column = function(column_id){
       # need the position of the column to remove it because the div with the column id is wrapped in a div without an id
       col_idx <- which(names(private$columns) == column_id)
-      
+
       # compute new column sizes for remaining columns
       new_col_sizes <- unlist(private$column_sizes[-col_idx])
       private$column_sizes <- new_col_sizes / sum(new_col_sizes) * 100
@@ -97,43 +97,6 @@ ElementalRow <- R6::R6Class(
       private$columns[[column_id]] <- NULL
     },
     
-    # add_column_before = function(column_id, input, output, session){
-    #   
-    #   col_idx <- which(names(private$columns) == column_id)
-    #   
-    #   # compute new column sizes
-    #   private$column_sizes <- unlist(private$column_sizes %>% append(mean(unlist(private$column_sizes)), after = col_idx - 1))
-    #   private$column_sizes <- private$column_sizes / sum(private$column_sizes) * 100
-    #   
-    #   # add new column object
-    #   new_col <- ElementalColumn$new(list(), self, private$ns, private$global_session)
-    #   private$columns <- append(private$columns, list(new_col) %>% setNames(new_col$get_id()), after = col_idx - 1)
-    #   
-    #   # update UI
-    #   # remove gutters
-    #   shinyjs::runjs(stringr::str_c("$('#",private$id," > .gutter').remove()"))
-    #   # insert new column UI
-    #   insertUI(
-    #     stringr::str_c("#",private$id, " > div:nth-child(",col_idx,")"),
-    #     "beforeBegin",
-    #     div(
-    #       class = "bslib-grid-item bslib-gap-spacing html-fill-container",
-    #       new_col$get_ui()
-    #     ),
-    #     immediate = TRUE,
-    #     session = session
-    #   )
-    #   # re-init splitjs              
-    #   shinyjs::runjs(stringr::str_c("
-    #     $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
-    #     Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250})
-    #   "))
-    #   
-    #   # complete UI stuff for this column (new background controls + observers)
-    #   new_col$complete_ui_reactive(input, output, session)
-    #   
-    # }
-    
     add_column = function(column_id, position = c("before", "after"), input, output, session){
       
       col_idx <- which(names(private$columns) == column_id)
@@ -144,12 +107,12 @@ ElementalRow <- R6::R6Class(
       adjustment = if_else(position == "before", -1, 0) 
       
       # compute new column sizes
-      private$column_sizes <- unlist(private$column_sizes %>% append(mean(unlist(private$column_sizes)), after = col_idx - adjustment))
+      private$column_sizes <- unlist(private$column_sizes %>% append(mean(unlist(private$column_sizes)), after = col_idx + adjustment))
       private$column_sizes <- private$column_sizes / sum(private$column_sizes) * 100
       
       # add new column object
       new_col <- ElementalColumn$new(list(), self, private$ns, private$global_session)
-      private$columns <- append(private$columns, list(new_col) %>% setNames(new_col$get_id()), after = col_idx - adjustment)
+      private$columns <- append(private$columns, list(new_col) %>% setNames(new_col$get_id()), after = col_idx + adjustment)
       
       # update UI
       # remove gutters
@@ -169,6 +132,11 @@ ElementalRow <- R6::R6Class(
       shinyjs::runjs(stringr::str_c("
         $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
         Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250})
+      "))
+      
+      # use same class for new column as for existing column (this helps with the layout-visible thing)
+      shinyjs::runjs(stringr::str_c("
+        $('#",new_col$get_id(),"').attr('class', $('#",column_id, "').attr('class'))
       "))
       
       # complete UI stuff for this column (new background controls + observers)
