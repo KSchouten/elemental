@@ -7,7 +7,8 @@ ElementalRow <- R6::R6Class(
     column_sizes = list(),
     columns = list(),
     parent_page = NULL,
-    global_session = NULL
+    global_session = NULL,
+    ns = NULL
   ),
   
   public = list(
@@ -21,6 +22,7 @@ ElementalRow <- R6::R6Class(
       
       private$parent_page <- parent
       private$global_session <- global_session
+      private$ns <- ns
       
       # columns
       private$columns <- purrr::map(layout$columns, ~ElementalColumn$new(., self, ns, global_session)) %>% setNames(purrr::map_chr(., ~.$get_id()))
@@ -50,27 +52,6 @@ ElementalRow <- R6::R6Class(
       return(private$parent_page)
     },
     
-    remove_column = function(column_id){
-      # need the position of the column to remove it because the div with the column id is wrapped in a div without an id
-      col_idx <- which(names(private$columns) == column_id)
-      
-      # compute new column sizes for remaining columns
-      new_col_sizes <- unlist(private$column_sizes[-col_idx])
-      private$column_sizes <- new_col_sizes / sum(new_col_sizes) * 100
-
-      # update UI:
-      # remove gutters, remove div, reset grid-template-columns, re-init split
-      shinyjs::runjs(stringr::str_c("
-                    $('#",private$id," > .gutter').remove()
-                    $('#",private$id,"').children().eq(",col_idx-1,").remove()
-                    $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
-                    Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250})
-                  "))
-      
-      # remove column from layout object
-      private$columns[[column_id]] <- NULL
-    },
-    
     get_ui = function(){
       print(stringr::str_c("get ui Row ", private$id))
       tagList(
@@ -93,10 +74,106 @@ ElementalRow <- R6::R6Class(
       shinyjs::runjs(stringr::str_c("Split($('#",private$id, " > div'), {sizes: [",col_sizes,"], minSize: 250})"))
       
       purrr::walk(private$columns, ~.$complete_ui_reactive(input, output, session))
+    },
+    
+    remove_column = function(column_id){
+      # need the position of the column to remove it because the div with the column id is wrapped in a div without an id
+      col_idx <- which(names(private$columns) == column_id)
+      
+      # compute new column sizes for remaining columns
+      new_col_sizes <- unlist(private$column_sizes[-col_idx])
+      private$column_sizes <- new_col_sizes / sum(new_col_sizes) * 100
+      
+      # update UI:
+      # remove gutters, remove div, reset grid-template-columns, re-init split
+      shinyjs::runjs(stringr::str_c("
+                    $('#",private$id," > .gutter').remove()
+                    $('#",private$id,"').children().eq(",col_idx-1,").remove()
+                    $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
+                    Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250})
+                  "))
+      
+      # remove column from layout object
+      private$columns[[column_id]] <- NULL
+    },
+    
+    # add_column_before = function(column_id, input, output, session){
+    #   
+    #   col_idx <- which(names(private$columns) == column_id)
+    #   
+    #   # compute new column sizes
+    #   private$column_sizes <- unlist(private$column_sizes %>% append(mean(unlist(private$column_sizes)), after = col_idx - 1))
+    #   private$column_sizes <- private$column_sizes / sum(private$column_sizes) * 100
+    #   
+    #   # add new column object
+    #   new_col <- ElementalColumn$new(list(), self, private$ns, private$global_session)
+    #   private$columns <- append(private$columns, list(new_col) %>% setNames(new_col$get_id()), after = col_idx - 1)
+    #   
+    #   # update UI
+    #   # remove gutters
+    #   shinyjs::runjs(stringr::str_c("$('#",private$id," > .gutter').remove()"))
+    #   # insert new column UI
+    #   insertUI(
+    #     stringr::str_c("#",private$id, " > div:nth-child(",col_idx,")"),
+    #     "beforeBegin",
+    #     div(
+    #       class = "bslib-grid-item bslib-gap-spacing html-fill-container",
+    #       new_col$get_ui()
+    #     ),
+    #     immediate = TRUE,
+    #     session = session
+    #   )
+    #   # re-init splitjs              
+    #   shinyjs::runjs(stringr::str_c("
+    #     $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
+    #     Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250})
+    #   "))
+    #   
+    #   # complete UI stuff for this column (new background controls + observers)
+    #   new_col$complete_ui_reactive(input, output, session)
+    #   
+    # }
+    
+    add_column = function(column_id, position = c("before", "after"), input, output, session){
+      
+      col_idx <- which(names(private$columns) == column_id)
+      # adjust col_idx when adding before the selected column because append only has an 'after' argument, it works with after=0 fortunately
+      if (!position %in% c("before", "after")){
+        stop("Incorrect value for 'position' parameter, should be either 'before' or 'after'")
+      }
+      adjustment = if_else(position == "before", -1, 0) 
+      
+      # compute new column sizes
+      private$column_sizes <- unlist(private$column_sizes %>% append(mean(unlist(private$column_sizes)), after = col_idx - adjustment))
+      private$column_sizes <- private$column_sizes / sum(private$column_sizes) * 100
+      
+      # add new column object
+      new_col <- ElementalColumn$new(list(), self, private$ns, private$global_session)
+      private$columns <- append(private$columns, list(new_col) %>% setNames(new_col$get_id()), after = col_idx - adjustment)
+      
+      # update UI
+      # remove gutters
+      shinyjs::runjs(stringr::str_c("$('#",private$id," > .gutter').remove()"))
+      # insert new column UI
+      insertUI(
+        stringr::str_c("#",private$id, " > div:nth-child(",col_idx,")"),
+        if_else(position == "before", "beforeBegin", "afterEnd"),
+        div(
+          class = "bslib-grid-item bslib-gap-spacing html-fill-container",
+          new_col$get_ui()
+        ),
+        immediate = TRUE,
+        session = session
+      )
+      # re-init splitjs              
+      shinyjs::runjs(stringr::str_c("
+        $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
+        Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250})
+      "))
+      
+      # complete UI stuff for this column (new background controls + observers)
+      new_col$complete_ui_reactive(input, output, session)
     }
-    
-    
-    
-    
+
   )
 )

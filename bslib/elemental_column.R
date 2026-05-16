@@ -9,7 +9,8 @@ ElementalColumn <- R6::R6Class(
     tiles = list(),
     observers = list(),
     parent_row = NULL,
-    global_session = NULL
+    global_session = NULL,
+    ns = NULL
   ),
   
   public = list(
@@ -21,6 +22,7 @@ ElementalColumn <- R6::R6Class(
       
       private$parent_row <- parent
       private$global_session <- global_session
+      private$ns <- ns
       
       # tiles
       private$tiles <- purrr::map(layout$tiles, ~ElementalTile$new(., self, ns, global_session)) %>% setNames(purrr::map_chr(., ~.$get_id()))
@@ -135,12 +137,14 @@ ElementalColumn <- R6::R6Class(
       private$observers$addcolumnbefore <- observe({
         addcolumnbefore <- stringr::str_c(private$id, "-addcolumnbefore")
         req(input[[addcolumnbefore]])
+        private$parent_row$add_column(private$ns_id, "before", input, output, session)
         print(addcolumnbefore)
       })
       
       private$observers$addcolumnafter <- observe({
         addcolumnafter <- stringr::str_c(private$id, "-addcolumnafter")
         req(input[[addcolumnafter]])
+        private$parent_row$add_column(private$ns_id, "after", input, output, session)
         print(addcolumnafter)
       })
       

@@ -8,7 +8,8 @@ ElementalTile <- R6::R6Class(
     title = NA_character_,
     modules = list(),
     parent_column = NULL,
-    global_session = NULL
+    global_session = NULL,
+    ns = NULL
   ),
   
   public = list(
@@ -22,7 +23,8 @@ ElementalTile <- R6::R6Class(
       private$parent_column <- parent
 
       private$global_session <- global_session
-            
+      private$ns <- ns
+                  
       private$modules <- layout$modules
       
     },
