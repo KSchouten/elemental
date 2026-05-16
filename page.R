@@ -10,19 +10,22 @@ Page <- R6::R6Class(
     modules = list(),
     layout = list(),
     
-    active = FALSE
+    active = FALSE,
+    
+    global_session = NULL
   ),
   
   public = list(
-    initialize = function(id, title, icon, globals, modules, layout){
+    initialize = function(id, title, icon, globals, modules, layout, global_session){
       private$id <- id
       private$title <- title
       private$icon <- icon
       private$globals <- globals
       private$modules <- modules
-      private$layout <- layout
+      private$global_session <- global_session
       
-      
+      # init layout with row objects
+      private$layout <- purrr::map(layout, ~ElementalRow$new(., self, NS(private$id), global_session)) %>% setNames(purrr::map_chr(., ~.$get_id()))
     },
     
     get_id = function(){
@@ -40,29 +43,9 @@ Page <- R6::R6Class(
     
     get_ui = function(){
       ns <- NS(private$id)
-      
+      print(stringr::str_c("get ui Page ", private$id))
       nav_panel(id = private$id, value = private$id, title = private$title, icon = icon(private$icon), 
-                purrr::imap(private$layout, function(row, row_idx){
-                  row_id <- ns(stringr::str_c("row", row_idx, sep = "-"))
-                  elemental_row(
-                    id = row_id, columns = row$column_sizes,
-                    !!!purrr::imap(row$columns, function(col, col_idx){
-                      col_id <- ns(stringr::str_c("col", row_idx, col_idx, sep = "-"))
-                      elemental_column(
-                        id = col_id,
-                        !!!purrr::imap(col$tiles, function(tile, tile_idx){
-                          #tile_id = stringr::str_c("tile-", as.numeric(lubridate::now()), tile_idx)
-                          tile_id = ns(stringr::str_c("tile", row_idx, col_idx, tile_idx, sep = "-"))
-                          elemental_tile(
-                            id = tile_id,
-                            title = tile$title
-                          )
-                        })
-                      )
-                    })
-                  )
-                })
-                #uiOutput(ns("page"))
+                purrr::map(private$layout, ~.$get_ui())
       )
   
     },
@@ -93,83 +76,10 @@ Page <- R6::R6Class(
           print(stringr::str_c("complete UI for ", private$id))
 
           # intialize splitjs on each row
-          purrr::iwalk(private$layout, function(row, row_idx){
-            row_id <- ns(stringr::str_c("row", row_idx, sep = "-"))
-            col_sizes <- row$column_sizes %>% stringr::str_c(collapse = ", ")
-            shinyjs::runjs(stringr::str_c("Split($('#",row_id, " > div'), {sizes: [",col_sizes,"], minSize: 250})"))
-            
-            #add background controls for each column
-            purrr::iwalk(row$columns, function(col, col_idx){
-              col_id <- stringr::str_c("col", row_idx, col_idx, sep = "-")
-              insert_background_controls(ns(col_id))
-              
-              observers[[col_id]] <- list(
-                addtile = observe({
-                  addtile <- stringr::str_c(col_id, "-addtile")
-                  req(input[[addtile]])
-                  print(addtile)
-                }),
-                # Remove column
-                removecolumn = observe({
-                  removecolumn <- stringr::str_c(col_id, "-removecolumn")
-                  req(input[[removecolumn]])
-                  new_col_sizes <- unlist(row$column_sizes[-col_idx])
-                  row$column_sizes <<- new_col_sizes / sum(new_col_sizes) * 100
-                  # remove gutters, remove div, reset grid-template-columns, re-init split
-                  shinyjs::runjs(stringr::str_c("
-                    $('#",row_id," > .gutter').remove()
-                    $('#",row_id,"').children().eq(",col_idx-1,").remove()
-                    $('#",row_id,"').css('grid-template-columns', '", stringr::str_c(new_col_sizes, "fr", collapse = " 10px "), "');
-                    Split($('#",row_id, " > div'), {sizes: [",new_col_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250})
-                  "))
-                  # remove observers for this column
-                  purrr::walk(observers[[col_id]], ~.$destroy())
-                  # update row variable for later
-                  row$columns <<- row$columns[-col_idx] 
-                  
-                  print(removecolumn)
-                }),
-                addcolumnbefore = observe({
-                  addcolumnbefore <- stringr::str_c(col_id, "-addcolumnbefore")
-                  req(input[[addcolumnbefore]])
-                  print(addcolumnbefore)
-                }),
-                addcolumnafter = observe({
-                  addcolumnafter <- stringr::str_c(col_id, "-addcolumnafter")
-                  req(input[[addcolumnafter]])
-                  print(addcolumnafter)
-                })
-              )
-              
-              # insert the module UI's as they are only loaded when the page is first visited
-              
-              purrr::iwalk(col$tiles, function(tile, tile_idx){
-                tile_id = stringr::str_c("tile", row_idx, col_idx, tile_idx, sep = "-")
-                purrr::iwalk(rev(tile$modules), function(mod_id, mod_idx){
-                  mod <- private$modules[[mod_id]]
-                  
-                  # easiest thing is to insert in reverse order so we can always add the newest tab at the front
-                  #   if we use "after" they appear after the buttons as well which is not what we want
-                  nav_insert(tile_id,
-                             nav_panel(
-                               id = mod$get_full_id(),
-                               title = mod$get_title(),
-                               value = mod$get_id(),
-                               mod$get_ui()
-                             ), position = "before", select = TRUE
-                  )
-                  # tabcontent divs are always inserted at the end, regardless of the "before" setting of nav_insert
-                  # this javascript swaps the order of the content div so it matches with the tab order
-                  if (mod_idx > 1){
-                    shinyjs::runjs(stringr::str_c("setTimeout(function(){
-                      $('#", ns(tile_id), "').parent().parent().children().eq(1).children().eq(",0,").before($('#", ns(tile_id), "').parent().parent().children().eq(1).children().eq(",mod_idx-1,"));
-                    }, 100);"))
-                  }
-                })
-              })
-            })
+          purrr::walk(private$layout, function(row){
+            row$complete_ui_reactive(input, output, session)
           })
-
+            
         })
         
         return(NULL)

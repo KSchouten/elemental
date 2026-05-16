@@ -80,7 +80,7 @@ server <- function(input, output, session) {
       !!!purrr::imap(page$modules, function(module, id){
         list(class = get(module$class), title=module$title, imports = module$imports)
       })
-    ), page$layout)
+    ), page$layout, session)
   }) 
   
   # Preload allowed modules to save time on a lookup per module
