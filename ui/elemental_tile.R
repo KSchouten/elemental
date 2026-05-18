@@ -23,7 +23,7 @@ ElementalTile <- R6::R6Class(
 
       private$globals <- globals
                   
-      private$modules <- layout$modules
+      private$modules <- layout$modules # just a character vector of module id's
       
     },
     
@@ -37,6 +37,20 @@ ElementalTile <- R6::R6Class(
     
     get_parent = function(){
       return(private$parent)
+    },
+    
+    set_parent = function(column){
+      private$parent <- column
+    },
+    
+    remove_module = function(index){
+      module_id <- private$modules[[index]] # need 1-index here
+      private$modules <- private$modules[-index]
+      return(module_id)
+    },
+    
+    add_module = function(module_id, index){
+      private$modules <- append(private$modules, module_id, index) # can use 0-index here
     },
     
     get_ui = function(){

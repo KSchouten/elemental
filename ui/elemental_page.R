@@ -22,6 +22,7 @@ ElementalPage <- R6::R6Class(
       
       # init layout with row objects
       private$rows <- purrr::map(layout$rows, ~ElementalRow$new(., self, globals)) %>% setNames(purrr::map_chr(., ~.$get_id()))
+      
     },
     
     get_id = function(){
@@ -35,7 +36,7 @@ ElementalPage <- R6::R6Class(
     },
 
     get_row = function(row_id){
-      return(layout[[row_id]])
+      return(private$rows[[row_id]])
     },
     
     get_ui = function(){
@@ -53,6 +54,7 @@ ElementalPage <- R6::R6Class(
         purrr::walk(private$rows, function(row){
           row$complete_ui_reactive(input, output, session)
         })
+        private$globals$elements <- append(private$globals$elements, private$rows)
       } else {
         stop("ElementalPage object can only be activated once")
       }

@@ -61,10 +61,12 @@ ElementalRow <- R6::R6Class(
     complete_ui_reactive = function(input, output, session){
       print(stringr::str_c("complete UI for ", private$id))
       
+      
       col_sizes <- private$column_sizes %>% stringr::str_c(collapse = ", ")
       shinyjs::runjs(stringr::str_c("Split($('#",private$id, " > div'), {sizes: [",col_sizes,"], minSize: 250})"))
       
       purrr::walk(private$columns, ~.$complete_ui_reactive(input, output, session))
+      private$globals$elements <- append(private$globals$elements, private$columns)
     },
     
     remove_column = function(column_id){

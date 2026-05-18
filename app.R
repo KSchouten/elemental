@@ -11,16 +11,9 @@ library(shiny)
 library(dplyr)
 library(bslib)
 source("utils.R")
-source("page.R")
 source("module.R")
-source("modules/mod_slider.R")
-source("modules/mod_histogram.R")
-source("modules/mod_text.R")
-
-source("bslib/elemental_tile.R")
-source("bslib/elemental_column.R")
-source("bslib/elemental_row.R")
-source("bslib/elemental_page_navbar.R")
+list.files("modules", full.names = TRUE) %>% purrr::walk(source)
+list.files("ui", full.names = TRUE) %>% purrr::walk(source)
 
 # Define UI for application
 ui <- tagList(
@@ -80,6 +73,7 @@ server <- function(input, output, session) {
     get_class(module$class)$new(id, module$title, globals, purrr::map(module$imports, unlist))
   })  
   
+  globals$elements <- list()
   globals$pages <- purrr::map(config$pages, function(layout){
     ElementalPage$new(layout, globals)
   }) %>% setNames(purrr::map_chr(., ~.$get_id()))
@@ -115,22 +109,17 @@ server <- function(input, output, session) {
 
   #handling moving tiles
   observe({
+    req(input$move_tile)
     print(input$move_tile)
     
-    from_page_id <- input$move_tile$from_column %>% stringr::str_extract("^[^-]+")
-    to_page_id <- input$move_tile$to_column %>% stringr::str_extract("^[^-]+")
+    from_column <- globals$elements[[input$move_tile$from_column]]
+    to_column <- globals$elements[[input$move_tile$to_column]]
     
-    # browser()
-    # 
-    # from_col <- globals$pages[[from_page_id]]$get_row(input$move_tile$from_row)$get_column(input$move_tile$from_column)
-    # to_col <- globals$pages[[to_page_id]]$get_row(input$move_tile$to_row)$get_column(input$move_tile$to_column)
-    # 
+    tile <- from_column$remove_tile(input$move_tile$from_index+1)
+    to_column$add_tile(tile, input$move_tile$to_index)
+    tile$set_parent(to_column)
     
-    
-    
-    
-    
-    
+    # serialize!
   })
   
   # Handling moving modules
@@ -174,6 +163,7 @@ server <- function(input, output, session) {
       if (is.null(input[[input$move_module$to_tile]])){
         nav_select(input$move_module$to_tile, input$move_module$tab_id)
         # ensure that Shiny know this panel is visible so it will actually render outputs
+        print("Trigger visibility")
         shinyjs::runjs(stringr::str_c("
           $('[data-value=\"", input$move_module$tab_id,"\"]').show();
           $('[data-value=\"", input$move_module$tab_id,"\"]').trigger('shown');
@@ -196,11 +186,18 @@ server <- function(input, output, session) {
     }
     
     # store in layout
+    from_tile <- globals$elements[[input$move_module$from_tile]]
+    to_tile <- globals$elements[[input$move_module$to_tile]]
     
+    module_id <- from_tile$remove_module(input$move_module$from_index+1)
+    to_tile$add_module(module_id, input$move_module$to_index)
+    # no set_parent here because modules don't know in which tile they are
+    
+    # serialize!
   }) %>% bindEvent(input$move_module)
   
   # Select first page
-  shinydashboard::updateTabItems(inputId = "page", selected = "id_page1")
+  shinydashboard::updateTabItems(inputId = "page", selected = isolate(globals$pages[[1]]$get_id()))
   waiter::waiter_hide()
 }
 

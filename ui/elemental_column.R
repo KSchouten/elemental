@@ -22,6 +22,7 @@ ElementalColumn <- R6::R6Class(
       
       # tiles
       private$tiles <- purrr::map(layout$tiles, ~ElementalTile$new(., self, globals)) %>% setNames(purrr::map_chr(., ~.$get_id()))
+      
     },
     
     get_id = function(){
@@ -32,6 +33,20 @@ ElementalColumn <- R6::R6Class(
       return(private$parent)
     },
     
+    remove_tile = function(index){
+      tile <- private$tiles[[index]] # need 1-index here
+      private$tiles <- private$tiles[-index]
+      return(tile)
+    },
+    
+    add_tile = function(tile, index){
+      private$tiles <- append(private$tiles, tile, index) # can use 0-index here
+    },
+    
+    get_tile = function(tile_id){
+      return(tiles[[tile_id]])
+    },
+    
     get_ui = function(){
       print(stringr::str_c("get ui Column ", private$id))
       
@@ -39,7 +54,7 @@ ElementalColumn <- R6::R6Class(
         if(length(private$tiles) == 0){
           layout_column_wrap(
             id = private$id,
-            row_id = private$parent$get_id(),
+            #row_id = private$parent$get_id(),
             width = 1, heights_equal = "row",
             class = "layout layout-column",
             style = css(padding = "0px"),
@@ -47,7 +62,7 @@ ElementalColumn <- R6::R6Class(
         } else {
           layout_column_wrap(
             id = private$id,
-            row_id = private$parent$get_id(),
+            #row_id = private$parent$get_id(),
             width = 1, heights_equal = "row",
             class = "layout layout-column",
             style = css(padding = "0px"),
@@ -70,9 +85,9 @@ ElementalColumn <- R6::R6Class(
           onEnd = htmlwidgets::JS(stringr::str_c(
             "function(evt){
               console.log(evt); 
-    
+              
               if (evt.newIndex !== evt.oldIndex | evt.from.id !== evt.to.id | evt.from.getAttribute('row_id') !== evt.to.getAttribute('row_id')){
-                Shiny.setInputValue('move_tile', {'from_row': evt.from.getAttribute('row_id'), 'from_column': evt.from.id, 'from_index': evt.oldIndex, 'to_row': evt.to.getAttribute('row_id'), 'to_column': evt.to.id, 'to_index': evt.newIndex})
+                Shiny.setInputValue('move_tile', {'from_column': evt.from.id, 'from_index': evt.oldIndex, 'to_column': evt.to.id, 'to_index': evt.newIndex})
               }
             }"
           ))
@@ -140,6 +155,7 @@ ElementalColumn <- R6::R6Class(
       })
       
       purrr::walk(private$tiles, ~.$complete_ui_reactive(input, output, session))
+      private$globals$elements <- append(private$globals$elements, private$tiles)
     }
   
       
