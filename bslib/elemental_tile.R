@@ -7,34 +7,25 @@ ElementalTile <- R6::R6Class(
     group = "elemental_tile",
     title = NA_character_,
     modules = list(),
-    parent_column = NULL,
-    global_session = NULL,
-    ns = NULL
+    parent = NULL,
+    globals = NULL
   ),
   
   public = list(
     
-    initialize = function(layout, parent, ns, global_session){
+    initialize = function(layout, parent, globals){
       # generate id, no ns as we want to be able to move these between pages
       private$id <- stringr::str_replace((stringr::str_c("tile-",as.numeric(lubridate::now()))), "[.]","")
       
       private$title <- layout$title
       
-      private$parent_column <- parent
+      private$parent <- parent
 
-      private$global_session <- global_session
-      private$ns <- ns
+      private$globals <- globals
                   
       private$modules <- layout$modules
       
     },
-    
-    # # Set parent row object, only for initial filling, not for updating
-    # set_parent_column = function(parent_column){
-    #   if(is.null(private$parent_column)){
-    #     private$parent_column <- parent_column
-    #   }
-    # },
     
     get_id = function(){
       return(private$id)
@@ -44,8 +35,8 @@ ElementalTile <- R6::R6Class(
       return(private$title)
     },
     
-    get_parent_column = function(){
-      return(private$parent_column)
+    get_parent = function(){
+      return(private$parent)
     },
     
     get_ui = function(){
@@ -100,18 +91,18 @@ ElementalTile <- R6::R6Class(
       
       # insert module UIs
       purrr::iwalk(rev(private$modules), function(mod_id, mod_idx){
-        
-        mod <- self$get_parent_column()$get_parent_row()$get_parent_page()$get_module(mod_id)
+
+        mod <- private$globals$modules[[mod_id]]
         
         # easiest thing is to insert in reverse order so we can always add the newest tab at the front
         #   if we use "after" they appear after the buttons as well which is not what we want
         nav_insert(private$id, # works without namespace?
                    nav_panel(
-                     id = mod$get_full_id(),
+                     id = mod$get_id(),
                      title = mod$get_title(),
                      value = mod$get_id(),
                      mod$get_ui()
-                   ), position = "before", select = TRUE, session = private$global_session
+                   ), position = "before", select = TRUE, session = session
         )
         # tabcontent divs are always inserted at the end, regardless of the "before" setting of nav_insert
         # this javascript swaps the order of the content div so it matches with the tab order
@@ -120,6 +111,8 @@ ElementalTile <- R6::R6Class(
             $('#", private$id, "').parent().parent().children().eq(1).children().eq(",0,").before($('#", private$id, "').parent().parent().children().eq(1).children().eq(",mod_idx-1,"));
           }, 100);"))
         }
+        
+        mod$start_server()
       })
     }
   )

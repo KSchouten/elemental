@@ -6,43 +6,31 @@ ElementalRow <- R6::R6Class(
     page_navbar_id = "page",
     column_sizes = list(),
     columns = list(),
-    parent_page = NULL,
-    global_session = NULL,
-    ns = NULL
+    parent = NULL,
+    globals = NULL
   ),
   
   public = list(
     
-    initialize = function(layout, parent, ns, global_session){
+    initialize = function(layout, parent, globals){
       # generate id
-      private$id <- stringr::str_replace(ns(stringr::str_c("row-",as.numeric(lubridate::now()))), "[.]","")
+      private$id <- stringr::str_replace(stringr::str_c("row-",as.numeric(lubridate::now())), "[.]","")
       
       # column_sizes
       private$column_sizes <- layout$column_sizes
       
-      private$parent_page <- parent
-      private$global_session <- global_session
-      private$ns <- ns
+      private$parent <- parent
+      private$globals <- globals
       
       # columns
-      private$columns <- purrr::map(layout$columns, ~ElementalColumn$new(., self, ns, global_session)) %>% setNames(purrr::map_chr(., ~.$get_id()))
+      private$columns <- purrr::map(layout$columns, ~ElementalColumn$new(., self, globals)) %>% setNames(purrr::map_chr(., ~.$get_id()))
       
     },
-    
-    # # Set parent row object, only for initial filling, not for updating
-    # set_parent_page = function(parent_page){
-    #   if(is.null(private$parent_page)){
-    #     private$parent_page <- parent_page
-    #   }
-    # },
     
     get_id = function(){
       return(private$id)
     },
     
-    get_columns = function(){
-      return(private$columns)
-    },
     get_column = function(column_id){
       return(private$columns[[column_id]])
     },
@@ -51,8 +39,8 @@ ElementalRow <- R6::R6Class(
       return(private$column_sizes)
     },
     
-    get_parent_page = function(){
-      return(private$parent_page)
+    get_parent = function(){
+      return(private$parent)
     },
     
     get_ui = function(){
@@ -114,7 +102,7 @@ ElementalRow <- R6::R6Class(
       private$column_sizes <- private$column_sizes / sum(private$column_sizes) * 100
       
       # add new column object
-      new_col <- ElementalColumn$new(list(), self, private$ns, private$global_session)
+      new_col <- ElementalColumn$new(list(), self, session)
       private$columns <- append(private$columns, list(new_col) %>% setNames(new_col$get_id()), after = col_idx + adjustment)
       
       # update UI

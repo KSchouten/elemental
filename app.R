@@ -75,14 +75,15 @@ server <- function(input, output, session) {
   # Autologin user (locally or with url) and load page setup
   # Currently loads default page setup from pages.json
   globals$user <- "test"
-  globals$pages <- purrr::imap(jsonlite::read_json("pages.json"), function(page, id){
-    Page$new(id, page$title, page$icon, globals, reactiveValues(
-      !!!purrr::imap(page$modules, function(module, id){
-        list(class = get(module$class), title=module$title, imports = module$imports)
-      })
-    ), page$layout, session)
-  })
+  config <- jsonlite::read_json("pages.json")
+  globals$modules <- purrr::imap(config$modules, function(module, id){
+    get_class(module$class)$new(id, module$title, globals, purrr::map(module$imports, unlist))
+  })  
   
+  globals$pages <- purrr::map(config$pages, function(layout){
+    ElementalPage$new(layout, globals)
+  }) %>% setNames(purrr::map_chr(., ~.$get_id()))
+
   # Preload allowed modules to save time on a lookup per module
   
   # Add pages to main UI
@@ -102,13 +103,12 @@ server <- function(input, output, session) {
     
     globals$current_page <- input$page
     
-    
     # If not started yet, start the server function for the selected page
     # Should be one-time only
     if (!globals$pages[[input$page]]$get_active()){
       
-      globals$pages[[input$page]]$start_server()
-
+      globals$pages[[input$page]]$complete_ui_reactive(input, output, session)
+      
     }
     
   }) %>% bindEvent(input$page)

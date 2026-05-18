@@ -3,69 +3,58 @@ ElementalColumn <- R6::R6Class(
   
   private = list(
     id = NA_character_,
-    ns_id = NA_character_,
     page_navbar_id = "page",
     group = "elemental_column",
     tiles = list(),
     observers = list(),
-    parent_row = NULL,
-    global_session = NULL,
-    ns = NULL
+    parent = NULL,
+    globals = NULL
   ),
   
   public = list(
     
-    initialize = function(layout, parent, ns, global_session){
+    initialize = function(layout, parent, globals){
       # generate id
       private$id <- stringr::str_replace(stringr::str_c("col-",as.numeric(lubridate::now())), "[.]","")
-      private$ns_id <- ns(private$id)
       
-      private$parent_row <- parent
-      private$global_session <- global_session
-      private$ns <- ns
+      private$parent <- parent
+      private$globals <- globals
       
       # tiles
-      private$tiles <- purrr::map(layout$tiles, ~ElementalTile$new(., self, ns, global_session)) %>% setNames(purrr::map_chr(., ~.$get_id()))
+      private$tiles <- purrr::map(layout$tiles, ~ElementalTile$new(., self, globals)) %>% setNames(purrr::map_chr(., ~.$get_id()))
     },
-    
-    # # Set parent row object, only for initial filling, not for updating
-    # set_parent_row = function(parent_row){
-    #   if(is.null(private$parent_row)){
-    #     private$parent_row <- parent_row
-    #   }
-    # },
     
     get_id = function(){
-      return(private$ns_id)
+      return(private$id)
     },
     
-    get_parent_row = function(){
-      return(private$parent_row)
+    get_parent = function(){
+      return(private$parent)
     },
     
     get_ui = function(){
-      print(stringr::str_c("get ui Column ", private$ns_id))
+      print(stringr::str_c("get ui Column ", private$id))
       
       tagList(
         if(length(private$tiles) == 0){
           layout_column_wrap(
-            id = private$ns_id,
-            row_id = private$parent_row$get_id(),
+            id = private$id,
+            row_id = private$parent$get_id(),
             width = 1, heights_equal = "row",
             class = "layout layout-column",
             style = css(padding = "0px"),
           )
         } else {
           layout_column_wrap(
-            id = private$ns_id,
-            row_id = private$parent_row$get_id(),
+            id = private$id,
+            row_id = private$parent$get_id(),
             width = 1, heights_equal = "row",
             class = "layout layout-column",
             style = css(padding = "0px"),
             !!!setNames(purrr::map(private$tiles, ~.$get_ui()), NULL)
           )
         },
-        sortable::sortable_js(private$ns_id, options = sortable::sortable_options(
+        sortable::sortable_js(private$id, options = sortable::sortable_options(
           group = private$group, handle = ".card-header",
           onMove = htmlwidgets::JS(stringr::str_c(
             "function(evt){
@@ -92,11 +81,11 @@ ElementalColumn <- R6::R6Class(
     },
     
     complete_ui_reactive = function(input, output, session){
-      print(stringr::str_c("complete UI for ", private$ns_id))
+      print(stringr::str_c("complete UI for ", private$id))
       
       # insert the background controls that are only visible when there is no tile in a column
       # they have to be inserted afterwards because otherwise they will be wrapped in a div that will take up space like a tile in the layout
-      insertUI(stringr::str_c("#", private$ns_id), "beforeBegin",
+      insertUI(stringr::str_c("#", private$id), "beforeBegin",
                div(
                  style = css(
                    position = "relative",
@@ -110,12 +99,12 @@ ElementalColumn <- R6::R6Class(
                      top = "50px",
                      left = "calc(50% - 104px)",
                    ),
-                   actionButton(stringr::str_c(private$ns_id,"-addcolumnbefore"), "", icon = icon("arrow-right-to-bracket", class = "fa-rotate-180"), class = "btn-lg"),
-                   actionButton(stringr::str_c(private$ns_id,"-addtile"), "", icon = icon("square-plus"), class = "btn-lg"),
-                   actionButton(stringr::str_c(private$ns_id,"-removecolumn"), "", icon = icon("trash-can"), class = "btn-lg"),
-                   actionButton(stringr::str_c(private$ns_id,"-addcolumnafter"), "", icon = icon("arrow-right-to-bracket"), class = "btn-lg")
+                   actionButton(stringr::str_c(private$id,"-addcolumnbefore"), "", icon = icon("arrow-right-to-bracket", class = "fa-rotate-180"), class = "btn-lg"),
+                   actionButton(stringr::str_c(private$id,"-addtile"), "", icon = icon("square-plus"), class = "btn-lg"),
+                   actionButton(stringr::str_c(private$id,"-removecolumn"), "", icon = icon("trash-can"), class = "btn-lg"),
+                   actionButton(stringr::str_c(private$id,"-addcolumnafter"), "", icon = icon("arrow-right-to-bracket"), class = "btn-lg")
                  )
-               ), multiple = FALSE, immediate = TRUE, session = private$global_session)
+               ), multiple = FALSE, immediate = TRUE, session = session)
       
       
       private$observers$addtile <- observe({
@@ -130,7 +119,7 @@ ElementalColumn <- R6::R6Class(
         print(removecolumn)
         
         # remove column
-        private$parent_row$remove_column(private$ns_id)
+        private$parent$remove_column(private$id)
 
         # remove observers for this column
         purrr::walk(private$observers, ~.$destroy())
@@ -139,14 +128,14 @@ ElementalColumn <- R6::R6Class(
       private$observers$addcolumnbefore <- observe({
         addcolumnbefore <- stringr::str_c(private$id, "-addcolumnbefore")
         req(input[[addcolumnbefore]])
-        private$parent_row$add_column(private$ns_id, "before", input, output, session)
+        private$parent$add_column(private$id, "before", input, output, session)
         print(addcolumnbefore)
       })
       
       private$observers$addcolumnafter <- observe({
         addcolumnafter <- stringr::str_c(private$id, "-addcolumnafter")
         req(input[[addcolumnafter]])
-        private$parent_row$add_column(private$ns_id, "after", input, output, session)
+        private$parent$add_column(private$id, "after", input, output, session)
         print(addcolumnafter)
       })
       

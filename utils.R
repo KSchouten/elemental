@@ -4,3 +4,12 @@ toJSON <- function(x){jsonlite::toJSON(x, auto_unbox = TRUE)}
 fromJSON <- function(x){if (is.na(x)){list()}else{jsonlite::fromJSON(x, simplifyVector = FALSE)}}
 # Convenience function to conditionally wrap a tag in shinyjs::disabled
 disable <- function(tag, condition){if (condition) shinyjs::disabled(tag) else tag}
+
+get_class <- function(classname){
+  class_obj <- get(classname)
+  if (class_obj$get_inherit()$classname == "Module"){
+    return(class_obj)
+  } else {
+    return(NULL)
+  }
+}

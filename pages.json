@@ -1,62 +1,53 @@
 {
-  "id_page1": {
-    "title": "Page 1",
-    "icon": "wrench",
-    "modules": {
-      "id_mod1": {
-        "title": "slider title",
-        "class": "Slider"
-      },
-      "id_mod2": {
-        "class": "Histogram",
-        "imports": {"number_bins": ["id_page1","id_mod1","slider_value"]}
-      },
-      "id_mod3": {
-        "title": "another slider",
-        "class": "Slider"
-      },
-      "id_mod4": {
-        "title": "another histogram",
-        "class": "Histogram",
-        "imports": {"number_bins": ["id_page1","id_mod3","slider_value"]}
-      },
-      "id_mod5": {
-        "title": "filler",
-        "class": "Text"
-      }
+  "modules": {
+    "id_mod1": {
+      "title": "slider title",
+      "class": "Slider"
     },
-    "layout": [
-      {"column_sizes": [30, 70], "columns": [
-        {"tiles": [
-          {"title":"A title", "modules": ["id_mod5"]},
-          {"title":"Control", "modules": ["id_mod1"]}
+    "id_mod2": {
+      "class": "Histogram",
+      "imports": {"number_bins": ["id_mod1","slider_value"]}
+    },
+    "id_mod3": {
+      "title": "another slider",
+      "class": "Slider"
+    },
+    "id_mod4": {
+      "title": "another histogram",
+      "class": "Histogram",
+      "imports": {"number_bins": ["id_mod3","slider_value"]}
+    },
+    "id_mod5": {
+      "title": "filler",
+      "class": "Text"
+    }
+  },
+  "pages": [
+    {"class": "ElementalPage", "title": "Page 1", "icon": "wrench", "rows": [
+      {"class": "ElementalRow", "column_sizes": [30, 70], "columns": [
+        {"class": "ElementalColumn", "tiles": [
+          {"class": "ElementalTile", "title":"A title", "modules": ["id_mod5"]},
+          {"class": "ElementalTile", "title":"Control", "modules": ["id_mod1"]}
         ]},
-        {"tiles": [
-          {"title": "Results", "modules": ["id_mod2"]}
+        {"class": "ElementalColumn", "tiles": [
+          {"class": "ElementalTile", "title": "Results", "modules": ["id_mod2"]}
         ]}
       ]},
-      {"column_sizes": [100], "columns": [
-        {"tiles": [
-          {"title": "Multi-tabs", "modules":  ["id_mod3", "id_mod4"]},
-          {"title": "Leeg"}
+      {"class": "ElementalRow", "column_sizes": [100], "columns": [
+        {"class": "ElementalColumn", "tiles": [
+          {"class": "ElementalTile", "title": "Multi-tabs", "modules":  ["id_mod3", "id_mod4"]},
+          {"class": "ElementalTile", "title": "Leeg"}
         ]}
       ]}
-    ]
-  },
-  "id_page2": {
-    "title": "Page 2",
-    "icon": "cog",
-    "modules": {
-      
-    },
-    "layout": [
-      {"column_sizes": [20, 30, 50], "columns": [
-        {"tiles": [
-          {"title": "Nieuw", "modules": []}
+    ]},
+    {"class": "ElementalPage", "title": "Page 2", "icon": "cog", "rows": [
+      {"class": "ElementalRow", "column_sizes": [20, 30, 50], "columns": [
+        {"class": "ElementalColumn", "tiles": [
+          {"class": "ElementalTile", "title": "Nieuw", "modules": []}
         ]},
-        {"tiles": []},
-        {"tiles": []}
+        {"class": "ElementalColumn", "tiles": []},
+        {"class": "ElementalColumn", "tiles": []}
       ]}
-    ]  
-  }
+    ]}
+  ]
 }

@@ -14,7 +14,7 @@ Histogram <- R6::R6Class(
     
     # Override this for module-specific UI
     ui = function(){
-      ns <- NS(private$full_id)
+      ns <- NS(private$id)
       plotOutput(ns("distPlot"))
     },
     

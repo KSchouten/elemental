@@ -14,7 +14,7 @@ Slider <- R6::R6Class(
     
     # Override this for module-specific UI
     ui = function(){
-      ns <- NS(private$full_id)
+      ns <- NS(private$id)
       div(
         h1(private$default_name),
         shiny::sliderInput(ns("slider"), label = "Choose value", min = 0, max = 50, value = 25)
