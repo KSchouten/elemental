@@ -40,6 +40,9 @@ Page <- R6::R6Class(
     get_module = function(id){
       return(private$modules[[id]])
     },
+    get_row = function(row_id){
+      return(layout[[row_id]])
+    },
     
     get_ui = function(){
       ns <- NS(private$id)

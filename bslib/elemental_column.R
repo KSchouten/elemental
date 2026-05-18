@@ -50,6 +50,7 @@ ElementalColumn <- R6::R6Class(
         if(length(private$tiles) == 0){
           layout_column_wrap(
             id = private$ns_id,
+            row_id = private$parent_row$get_id(),
             width = 1, heights_equal = "row",
             class = "layout layout-column",
             style = css(padding = "0px"),
@@ -57,6 +58,7 @@ ElementalColumn <- R6::R6Class(
         } else {
           layout_column_wrap(
             id = private$ns_id,
+            row_id = private$parent_row$get_id(),
             width = 1, heights_equal = "row",
             class = "layout layout-column",
             style = css(padding = "0px"),
@@ -80,8 +82,8 @@ ElementalColumn <- R6::R6Class(
             "function(evt){
               console.log(evt); 
     
-              if (evt.newIndex !== evt.oldIndex | evt.from.id !== evt.to.id){
-                Shiny.setInputValue('move_tile', {'from_column': evt.from.id, 'from_index': evt.oldIndex, 'to_column': evt.to.id, 'to_index': evt.newIndex})
+              if (evt.newIndex !== evt.oldIndex | evt.from.id !== evt.to.id | evt.from.getAttribute('row_id') !== evt.to.getAttribute('row_id')){
+                Shiny.setInputValue('move_tile', {'from_row': evt.from.getAttribute('row_id'), 'from_column': evt.from.id, 'from_index': evt.oldIndex, 'to_row': evt.to.getAttribute('row_id'), 'to_column': evt.to.id, 'to_index': evt.newIndex})
               }
             }"
           ))

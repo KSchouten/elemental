@@ -43,6 +43,9 @@ ElementalRow <- R6::R6Class(
     get_columns = function(){
       return(private$columns)
     },
+    get_column = function(column_id){
+      return(private$columns[[column_id]])
+    },
     
     get_column_sizes = function(){
       return(private$column_sizes)

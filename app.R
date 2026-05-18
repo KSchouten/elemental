@@ -81,7 +81,7 @@ server <- function(input, output, session) {
         list(class = get(module$class), title=module$title, imports = module$imports)
       })
     ), page$layout, session)
-  }) 
+  })
   
   # Preload allowed modules to save time on a lookup per module
   
@@ -116,6 +116,21 @@ server <- function(input, output, session) {
   #handling moving tiles
   observe({
     print(input$move_tile)
+    
+    from_page_id <- input$move_tile$from_column %>% stringr::str_extract("^[^-]+")
+    to_page_id <- input$move_tile$to_column %>% stringr::str_extract("^[^-]+")
+    
+    # browser()
+    # 
+    # from_col <- globals$pages[[from_page_id]]$get_row(input$move_tile$from_row)$get_column(input$move_tile$from_column)
+    # to_col <- globals$pages[[to_page_id]]$get_row(input$move_tile$to_row)$get_column(input$move_tile$to_column)
+    # 
+    
+    
+    
+    
+    
+    
   })
   
   # Handling moving modules
