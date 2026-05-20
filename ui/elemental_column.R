@@ -113,7 +113,7 @@ ElementalColumn <- R6::R6Class(
                    style = css(
                      position = "absolute",
                      float = "left",
-                     top = "50px",
+                     top = "20px",
                      left = "calc(50% - 104px)",
                    ),
                    actionButton(stringr::str_c(private$id,"-addcolumnbefore"), "", icon = icon("arrow-right-to-bracket", class = "fa-rotate-180"), class = "btn-lg", onclick = htmlwidgets::JS("this.blur()")),

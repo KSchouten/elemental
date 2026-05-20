@@ -45,8 +45,6 @@ Histogram <- R6::R6Class(
                          xaxis = list(title = "Waiting time to next eruption (in mins)"),
                          yaxis = list(title = "Frequency"))
         
-        
-
     })
     }
   ),

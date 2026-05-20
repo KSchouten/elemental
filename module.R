@@ -11,6 +11,7 @@ Module <- R6::R6Class(
     params = list(),
     group = NA_character_,
     singleton = FALSE,
+    introtour = list(),
     
     title = NA_character_,
     globals = list(),
@@ -61,6 +62,9 @@ Module <- R6::R6Class(
     },
     get_output = function(output_var){
       return(private$module_outputs[[output_var]])
+    },
+    get_introtour = function(){
+      return(private$introtour)
     },
     
     serialize = function(){
