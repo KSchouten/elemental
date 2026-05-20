@@ -87,7 +87,7 @@ server <- function(input, output, session) {
       nav_insert("page", page$get_ui(), NULL, "before")
     })
 
-  })
+  }) %>% bindEvent(globals$pages, once = TRUE)
   
 
   # Obs. change in selected page -- start module for newly clicked pages
@@ -107,6 +107,19 @@ server <- function(input, output, session) {
     
   }) %>% bindEvent(input$page)
 
+  # Handling moving pages -----
+  observe({
+    req(input$move_page)
+    print(input$move_page)
+
+    idx <- input$move_page$from_index+1
+    page <- globals$pages[idx]
+    globals$pages <- append(globals$pages[-idx], page, input$move_page$to_index)
+
+    # serialize!
+    serialize(globals$modules, globals$pages)
+  }) %>% bindEvent(input$move_page)
+  
   # Handling moving tiles ------
   observe({
     req(input$move_tile)
