@@ -102,6 +102,7 @@ ElementalTile <- R6::R6Class(
     },
     
     complete_ui_reactive = function(input, output, session){
+      print(stringr::str_c("complete UI for ", private$id))
       
       # insert module UIs
       purrr::iwalk(rev(private$modules), function(mod_id, mod_idx){

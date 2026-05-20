@@ -109,17 +109,26 @@ ElementalColumn <- R6::R6Class(
                    "margin-bottom" = "-8px"
                  ),
                  div(
-                   class = "btn-group",
+                   class = "btn-group-vertical btn-group-lg", 
                    style = css(
                      position = "absolute",
                      float = "left",
                      top = "20px",
                      left = "calc(50% - 104px)",
+                     "background-color" = "white"
                    ),
-                   actionButton(stringr::str_c(private$id,"-addcolumnbefore"), "", icon = icon("arrow-right-to-bracket", class = "fa-rotate-180"), class = "btn-lg", onclick = htmlwidgets::JS("this.blur()")),
-                   actionButton(stringr::str_c(private$id,"-addtile"), "", icon = icon("square-plus"), class = "btn-lg", onclick = htmlwidgets::JS("this.blur()")),
-                   actionButton(stringr::str_c(private$id,"-removecolumn"), "", icon = icon("trash-can"), class = "btn-lg", onclick = htmlwidgets::JS("this.blur()")),
-                   actionButton(stringr::str_c(private$id,"-addcolumnafter"), "", icon = icon("arrow-right-to-bracket"), class = "btn-lg", onclick = htmlwidgets::JS("this.blur()"))
+                   div(
+                     class = "btn-group btn-group-lg", 
+                     actionButton(stringr::str_c(private$id,"-addcolumnbefore"), "", icon = icon("arrow-right-to-bracket", class = "fa-rotate-180"), class = "btn btn-outline-secondary", onclick = htmlwidgets::JS("this.blur()")),
+                     actionButton(stringr::str_c(private$id,"-addrowbefore"), "", icon = icon("arrows-up-to-line"), class = "btn btn-outline-secondary", onclick = htmlwidgets::JS("this.blur()")),
+                     actionButton(stringr::str_c(private$id,"-addrowafter"), "", icon = icon("arrows-down-to-line"), class = "btn btn-outline-secondary", onclick = htmlwidgets::JS("this.blur()")),
+                     actionButton(stringr::str_c(private$id,"-addcolumnafter"), "", icon = icon("arrow-right-to-bracket"), class = "btn btn-outline-secondary", onclick = htmlwidgets::JS("this.blur()"))
+                   ),
+                   div(
+                     class = "btn-group btn-group-lg", 
+                     actionButton(stringr::str_c(private$id,"-addtile"), "", icon = icon("square-plus"), class = "btn btn-outline-secondary", onclick = htmlwidgets::JS("this.blur()")),
+                     actionButton(stringr::str_c(private$id,"-removecolumn"), "", icon = icon("trash-can"), class = "btn btn-outline-secondary", onclick = htmlwidgets::JS("this.blur()")),
+                   )
                  )
                ), multiple = FALSE, immediate = TRUE, session = session)
       
@@ -178,6 +187,20 @@ ElementalColumn <- R6::R6Class(
         
         # serialize included in parent$add_column
       }) %>% bindEvent(input[[stringr::str_c(private$id, "-addcolumnafter")]])
+      
+      private$observers$addrowafter <- observe({
+        addrowafter <- stringr::str_c(private$id, "-addrowafter")
+        req(input[[addrowafter]])
+        #private$parent$add_column(private$id, "after", input, output, session)
+        print(addrowafter)
+      }) %>% bindEvent(input[[stringr::str_c(private$id, "-addrowafter")]])
+      
+      private$observers$addrowbefore <- observe({
+        addrowbefore <- stringr::str_c(private$id, "-addrowbefore")
+        req(input[[addrowbefore]])
+        #private$parent$add_column(private$id, "after", input, output, session)
+        print(addrowbefore)
+      }) %>% bindEvent(input[[stringr::str_c(private$id, "-addrowbefore")]])
       
       purrr::walk(private$tiles, ~.$complete_ui_reactive(input, output, session))
       private$globals$elements <- append(private$globals$elements, private$tiles)

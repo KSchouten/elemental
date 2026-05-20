@@ -26,7 +26,10 @@ elemental_page_navbar <- function(..., title = NULL, id = "page", selected = NUL
       sortable::sortable_js(id, options = sortable::sortable_options(
         group = group,
         onMove = htmlwidgets::JS(stringr::str_c(
-          "function(evt){console.log(evt.related);return evt.related.parentElement.id === '", id, "';}"
+          "function(evt){
+             console.log(evt.related);
+             return !evt.dragged.classList.contains('dropdown') && !evt.dragged.classList.contains('button') && (evt.related.parentElement.id === '", id, "') && (evt.related.className === 'nav-item' || (evt.related.classList.contains('first_button') && !evt.willInsertAfter));
+          }"
         )),
         onEnd = htmlwidgets::JS(stringr::str_c("
           function(evt){
@@ -38,5 +41,6 @@ elemental_page_navbar <- function(..., title = NULL, id = "page", selected = NUL
         ))
       ))
     })
+    
   )
 }

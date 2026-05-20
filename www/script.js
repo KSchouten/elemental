@@ -22,7 +22,7 @@ document.addEventListener("keydown", logKey)
 
 function logKey(e){
   console.log(e)
-  if (e.keyCode === 18){ //Alt
+  if (e.key === '\\'){ //Alt = 18, does not work well on Windows
     console.log("Light it up!")
     $('.layout-column').toggleClass('layout-visible')
     //$('.layout').toggleClass('layout-invisible')

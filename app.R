@@ -41,7 +41,7 @@ ui <- tagList(
     id = "page",
     lang = "en",
     fillable = FALSE,
-    
+    nav_item(actionLink(inputId = stringr::str_c("new_page"), label = em("Nieuw..."), icon = icon("plus")), class = "first_button button", onclick = htmlwidgets::JS("this.blur()")),
     nav_spacer(),
     nav_menu(
       title = "Links",
@@ -107,6 +107,31 @@ server <- function(input, output, session) {
     
   }) %>% bindEvent(input$page)
 
+  # Handling new page ----
+  observe({
+    req(input$new_page)
+    
+    last_page_id <- globals$pages[[length(globals$pages)]]$get_id()
+    new_page <- ElementalPage$new(
+      list(class = "ElementalPage", title = "Nieuwe pagina", icon = "file-circle-plus", rows = list(
+        list(class = "ElementalRow", column_sizes = c(40,60), columns = list(
+          list(class = "ElementalColumn", tiles = list(
+            list(class = "ElementalTile", title = "Tegel")
+          )),
+          list(class = "ElementalColumn", tiles = list())
+        ))
+      )), globals)
+    globals$pages <- append(globals$pages, list(new_page) %>% setNames(new_page$get_id()))
+    
+    nav_insert("page", new_page$get_ui(), target = last_page_id, position = "after")
+    
+    # serialize!
+    serialize(globals$modules, globals$pages)
+    
+    nav_select("page", selected = new_page$get_id())
+    
+  }) %>% bindEvent(input$new_page)
+  
   # Handling moving pages -----
   observe({
     req(input$move_page)
