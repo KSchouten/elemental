@@ -63,6 +63,10 @@ Module <- R6::R6Class(
       return(private$module_outputs[[output_var]])
     },
     
+    serialize = function(){
+      list(class = class(self)[1], title = private$title, imports = private$module_inputs)
+    },
+    
     get_ui = function(){
       private$ui()
     },

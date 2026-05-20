@@ -13,3 +13,12 @@ get_class <- function(classname){
     return(NULL)
   }
 }
+
+serialize <- function(modules, pages){
+  
+  toJSON(list(
+    modules = purrr::map(modules, ~.$serialize()),
+    pages = purrr::map(pages, ~.$serialize()) %>% setNames(NULL)
+  )) %>% jsonlite::prettify() %>% print()
+  
+}

@@ -107,7 +107,7 @@ server <- function(input, output, session) {
     
   }) %>% bindEvent(input$page)
 
-  #handling moving tiles
+  # Handling moving tiles ------
   observe({
     req(input$move_tile)
     print(input$move_tile)
@@ -120,9 +120,10 @@ server <- function(input, output, session) {
     tile$set_parent(to_column)
     
     # serialize!
-  })
+    serialize(globals$modules, globals$pages)
+  }) %>% bindEvent(input$move_tile)
   
-  # Handling moving modules
+  # Handling moving modules ------
   observe({
     req(input$move_module)
     print(input$move_module)
@@ -194,6 +195,7 @@ server <- function(input, output, session) {
     # no set_parent here because modules don't know in which tile they are
     
     # serialize!
+    serialize(globals$modules, globals$pages)
   }) %>% bindEvent(input$move_module)
   
   # Select first page

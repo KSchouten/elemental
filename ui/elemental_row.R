@@ -7,7 +7,8 @@ ElementalRow <- R6::R6Class(
     column_sizes = list(),
     columns = list(),
     parent = NULL,
-    globals = NULL
+    globals = NULL,
+    observers = list()
   ),
   
   public = list(
@@ -63,7 +64,15 @@ ElementalRow <- R6::R6Class(
       
       
       col_sizes <- private$column_sizes %>% stringr::str_c(collapse = ", ")
-      shinyjs::runjs(stringr::str_c("Split($('#",private$id, " > div'), {sizes: [",col_sizes,"], minSize: 250})"))
+      shinyjs::runjs(stringr::str_c("Split($('#",private$id, " > div'), {sizes: [",col_sizes,"], minSize: 250, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})"))
+      
+      private$observers$resize <- observe({
+        print(stringr::str_c(private$id, "-resize"))
+        print(input[[stringr::str_c(private$id, "-resize")]])
+        private$column_sizes <- input[[stringr::str_c(private$id, "-resize")]]
+        # serialize
+        serialize(private$globals$modules, private$globals$pages)
+      }) %>% bindEvent(input[[stringr::str_c(private$id, "-resize")]])
       
       purrr::walk(private$columns, ~.$complete_ui_reactive(input, output, session))
       private$globals$elements <- append(private$globals$elements, private$columns)
@@ -83,11 +92,17 @@ ElementalRow <- R6::R6Class(
                     $('#",private$id," > .gutter').remove()
                     $('#",private$id,"').children().eq(",col_idx-1,").remove()
                     $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
-                    Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250})
+                    Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
                   "))
       
       # remove column from layout object
       private$columns[[column_id]] <- NULL
+      
+      # update global list of UI elements, remove the deleted element from list
+      private$globals$elements <- private$globals$elements[which(names(private$globals$elements)!=column_id)]
+      
+      # serialize!
+      serialize(private$globals$modules, private$globals$pages)
     },
     
     add_column = function(column_id, position = c("before", "after"), input, output, session){
@@ -104,7 +119,7 @@ ElementalRow <- R6::R6Class(
       private$column_sizes <- private$column_sizes / sum(private$column_sizes) * 100
       
       # add new column object
-      new_col <- ElementalColumn$new(list(), self, session)
+      new_col <- ElementalColumn$new(list(), self, private$globals)
       private$columns <- append(private$columns, list(new_col) %>% setNames(new_col$get_id()), after = col_idx + adjustment)
       
       # update UI
@@ -124,7 +139,7 @@ ElementalRow <- R6::R6Class(
       # re-init splitjs              
       shinyjs::runjs(stringr::str_c("
         $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
-        Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250})
+        Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 250, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
       "))
       
       # use same class for new column as for existing column (this helps with the layout-visible thing)
@@ -132,8 +147,18 @@ ElementalRow <- R6::R6Class(
         $('#",new_col$get_id(),"').attr('class', $('#",column_id, "').attr('class'))
       "))
       
+      # update global list of UI elements
+      private$globals$elements <- append(private$globals$elements, list(new_col) %>% setNames(new_col$get_id()))
+      
       # complete UI stuff for this column (new background controls + observers)
       new_col$complete_ui_reactive(input, output, session)
+      
+      # serialize!
+      serialize(private$globals$modules, private$globals$pages)
+    },
+    
+    serialize = function(){
+      list(class = class(self)[1], column_sizes = private$column_sizes, columns = purrr::map(private$columns, ~.$serialize()) %>% setNames(NULL))
     }
 
   )

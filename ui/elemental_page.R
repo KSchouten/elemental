@@ -58,6 +58,10 @@ ElementalPage <- R6::R6Class(
       } else {
         stop("ElementalPage object can only be activated once")
       }
+    },
+    
+    serialize = function(){
+      list(class = class(self)[1], title = private$title, icon = private$icon, rows = purrr::map(private$rows, ~.$serialize()) %>% setNames(NULL))
     }
   )
 )

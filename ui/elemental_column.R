@@ -33,12 +33,14 @@ ElementalColumn <- R6::R6Class(
       return(private$parent)
     },
     
+    # just the object operation, not the UI part
     remove_tile = function(index){
       tile <- private$tiles[[index]] # need 1-index here
       private$tiles <- private$tiles[-index]
       return(tile)
     },
     
+    # just the object operation, not the UI part
     add_tile = function(tile, index){
       private$tiles <- append(private$tiles, tile, index) # can use 0-index here
     },
@@ -54,7 +56,7 @@ ElementalColumn <- R6::R6Class(
         if(length(private$tiles) == 0){
           layout_column_wrap(
             id = private$id,
-            #row_id = private$parent$get_id(),
+            min_height = "100px",
             width = 1, heights_equal = "row",
             class = "layout layout-column",
             style = css(padding = "0px"),
@@ -62,7 +64,7 @@ ElementalColumn <- R6::R6Class(
         } else {
           layout_column_wrap(
             id = private$id,
-            #row_id = private$parent$get_id(),
+            min_height = "100px",
             width = 1, heights_equal = "row",
             class = "layout layout-column",
             style = css(padding = "0px"),
@@ -114,10 +116,10 @@ ElementalColumn <- R6::R6Class(
                      top = "50px",
                      left = "calc(50% - 104px)",
                    ),
-                   actionButton(stringr::str_c(private$id,"-addcolumnbefore"), "", icon = icon("arrow-right-to-bracket", class = "fa-rotate-180"), class = "btn-lg"),
-                   actionButton(stringr::str_c(private$id,"-addtile"), "", icon = icon("square-plus"), class = "btn-lg"),
-                   actionButton(stringr::str_c(private$id,"-removecolumn"), "", icon = icon("trash-can"), class = "btn-lg"),
-                   actionButton(stringr::str_c(private$id,"-addcolumnafter"), "", icon = icon("arrow-right-to-bracket"), class = "btn-lg")
+                   actionButton(stringr::str_c(private$id,"-addcolumnbefore"), "", icon = icon("arrow-right-to-bracket", class = "fa-rotate-180"), class = "btn-lg", onclick = htmlwidgets::JS("this.blur()")),
+                   actionButton(stringr::str_c(private$id,"-addtile"), "", icon = icon("square-plus"), class = "btn-lg", onclick = htmlwidgets::JS("this.blur()")),
+                   actionButton(stringr::str_c(private$id,"-removecolumn"), "", icon = icon("trash-can"), class = "btn-lg", onclick = htmlwidgets::JS("this.blur()")),
+                   actionButton(stringr::str_c(private$id,"-addcolumnafter"), "", icon = icon("arrow-right-to-bracket"), class = "btn-lg", onclick = htmlwidgets::JS("this.blur()"))
                  )
                ), multiple = FALSE, immediate = TRUE, session = session)
       
@@ -126,9 +128,24 @@ ElementalColumn <- R6::R6Class(
         addtile <- stringr::str_c(private$id, "-addtile")
         req(input[[addtile]])
         print(addtile)
-      })
+        
+        new_tile <- ElementalTile$new(list(title = "Nieuwe Tegel"), self, private$globals)
+        private$tiles <- append(private$tiles, list(new_tile) %>% setNames(new_tile$get_id()))
+        
+        insertUI(stringr::str_c("#", private$id), "beforeEnd", 
+                 div(
+                   class = "bslib-grid-item bslib-gap-spacing html-fill-container",
+                   new_tile$get_ui()
+                 ), immediate = TRUE, session = session)
+        
+        new_tile$complete_ui_reactive(input, output, session)
+        private$globals$elements <- append(private$globals$elements, list(new_tile) %>% setNames(new_tile$get_id()))
+                 
+        # serialize!
+        serialize(private$globals$modules, private$globals$pages)
+      }) %>% bindEvent(input[[stringr::str_c(private$id, "-addtile")]])
       
-      private$observers$removetile <- observe({
+      private$observers$removecolumn <- observe({
         removecolumn <- stringr::str_c(private$id, "-removecolumn")
         req(input[[removecolumn]])
         print(removecolumn)
@@ -138,24 +155,36 @@ ElementalColumn <- R6::R6Class(
 
         # remove observers for this column
         purrr::walk(private$observers, ~.$destroy())
-      })
+        
+        # serialize!
+        serialize(private$globals$modules, private$globals$pages)
+      }) %>% bindEvent(input[[stringr::str_c(private$id, "-removecolumn")]])
       
       private$observers$addcolumnbefore <- observe({
         addcolumnbefore <- stringr::str_c(private$id, "-addcolumnbefore")
         req(input[[addcolumnbefore]])
         private$parent$add_column(private$id, "before", input, output, session)
         print(addcolumnbefore)
-      })
+        
+        # serialize included in parent$add_column
+        
+      }) %>% bindEvent(input[[stringr::str_c(private$id, "-addcolumnbefore")]])
       
       private$observers$addcolumnafter <- observe({
         addcolumnafter <- stringr::str_c(private$id, "-addcolumnafter")
         req(input[[addcolumnafter]])
         private$parent$add_column(private$id, "after", input, output, session)
         print(addcolumnafter)
-      })
+        
+        # serialize included in parent$add_column
+      }) %>% bindEvent(input[[stringr::str_c(private$id, "-addcolumnafter")]])
       
       purrr::walk(private$tiles, ~.$complete_ui_reactive(input, output, session))
       private$globals$elements <- append(private$globals$elements, private$tiles)
+    },
+    
+    serialize = function(){
+      list(class = class(self)[1], tiles = purrr::map(private$tiles, ~.$serialize()) %>% setNames(NULL))
     }
   
       

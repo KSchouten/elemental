@@ -128,6 +128,10 @@ ElementalTile <- R6::R6Class(
         
         mod$start_server()
       })
+    },
+    
+    serialize = function(){
+      list(class = class(self)[1], title = private$title, modules = setNames(private$modules, NULL))
     }
   )
 )
