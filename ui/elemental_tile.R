@@ -90,7 +90,9 @@ ElementalTile <- R6::R6Class(
             "function(evt){
           console.log(evt); 
           if (evt.related.parentElement.id === '", private$page_navbar_id, "'){
-            $(evt.related.children[0]).click()
+            if (!evt.related.classList.contains('button')){
+              $(evt.related.children[0]).click()
+            }
             return false
           } else { 
             return !evt.dragged.classList.contains('button') && (evt.related.className === 'nav-item' || (evt.related.classList.contains('first_button') && !evt.willInsertAfter));
