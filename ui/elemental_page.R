@@ -95,7 +95,7 @@ ElementalPage <- R6::R6Class(
       # update UI:
       # remove gutters, remove div, reset grid-template-columns, re-init split
       shinyjs::runjs(stringr::str_c("
-                    $('[data-value='",private$id, "']').children().eq(",row_idx-1,").remove()
+                    $('[data-value=\"",private$id, "\"]').children().eq(",row_idx-1,").remove()
                   "))
       
       # remove column from layout object
@@ -103,6 +103,7 @@ ElementalPage <- R6::R6Class(
       
       # update global list of UI elements, remove the deleted element from list
       private$globals$elements <- private$globals$elements[which(names(private$globals$elements)!=row_id)]
+      
       
       # if page is empty, also remove it
       if (length(private$rows)==0){

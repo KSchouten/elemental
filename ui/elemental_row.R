@@ -86,24 +86,27 @@ ElementalRow <- R6::R6Class(
       new_col_sizes <- unlist(private$column_sizes[-col_idx])
       private$column_sizes <- new_col_sizes / sum(new_col_sizes) * 100
       
-      # update UI:
-      # remove gutters, remove div, reset grid-template-columns, re-init split
-      shinyjs::runjs(stringr::str_c("
-                    $('#",private$id," > .gutter').remove()
-                    $('#",private$id,"').children().eq(",col_idx-1,").remove()
-                    $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
-                    Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 270, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
-                  "))
-      
       # remove column from layout object
       private$columns[[column_id]] <- NULL
       
       # update global list of UI elements, remove the deleted element from list
       private$globals$elements <- private$globals$elements[which(names(private$globals$elements)!=column_id)]
       
-      # if this was the last column, also remove the row
+      # update UI: remove gutters, remove div 
+      shinyjs::runjs(stringr::str_c("
+                    $('#",private$id," > .gutter').remove()
+                    $('#",private$id,"').children().eq(",col_idx-1,").remove()
+                  "))
+                  
       if (length(private$columns)==0){
+        # if this was the last column, also remove the row
         private$parent$remove_row(private$id, input, output, session, serialize = FALSE)
+      } else {
+        # otherwise reset grid-template-columns, re-init split
+        shinyjs::runjs(stringr::str_c("
+                    $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
+                    Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 270, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
+                  "))
       }
       
       # serialize!
