@@ -114,7 +114,7 @@ ElementalColumn <- R6::R6Class(
                      position = "absolute",
                      float = "left",
                      top = "20px",
-                     left = "calc(50% - 104px)",
+                     left = "calc(50% - 131px)",
                      "background-color" = "white"
                    ),
                    div(

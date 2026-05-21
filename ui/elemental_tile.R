@@ -104,6 +104,9 @@ ElementalTile <- R6::R6Class(
     complete_ui_reactive = function(input, output, session){
       print(stringr::str_c("complete UI for ", private$id))
       
+      # add extra class to tablist ul element to ensure tabs are floating right also on Edge
+      shinyjs::runjs(stringr::str_c("$('#",private$id,"').addClass('justify-content-end')"))
+      
       # insert module UIs
       purrr::iwalk(rev(private$modules), function(mod_id, mod_idx){
 
