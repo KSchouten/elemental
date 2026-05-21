@@ -116,7 +116,7 @@ ElementalColumn <- R6::R6Class(
                      position = "absolute",
                      float = "left",
                      top = "20px",
-                     left = "calc(50% - 131px)",
+                     left = "calc(50% - 109px)", #218px in firefox, 263px in edge?
                      "background-color" = "white"
                    ),
                    div(

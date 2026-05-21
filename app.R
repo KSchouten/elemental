@@ -15,6 +15,20 @@ source("module.R")
 list.files("modules", full.names = TRUE) %>% purrr::walk(source)
 list.files("ui", full.names = TRUE) %>% purrr::walk(source)
 
+theme <- bslib::bs_theme() %>%
+  bslib::bs_add_variables(
+    #"spacer" = "0.5rem",         # make site more compact
+    "bslib-spacer" = "0.5rem",    # make column gaps smaller
+    "grid-breakpoints" = "(
+        xs: 0,
+        sm: 768px,
+        md: 768px, 
+        lg: 992px,
+        xl: 1200px,
+        xxl: 1400px)", # 0, 576, 768, 992, 1200, 1400
+    .where = "declarations"
+  ) 
+
 # Define UI for application
 ui <- tagList(
   
@@ -55,6 +69,8 @@ ui <- tagList(
 
 # Define server logic
 server <- function(input, output, session) {
+  
+  session$setCurrentTheme(theme)
   
   # Global variables
   #  database connection
