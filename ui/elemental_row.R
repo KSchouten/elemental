@@ -64,7 +64,7 @@ ElementalRow <- R6::R6Class(
       
       
       col_sizes <- private$column_sizes %>% stringr::str_c(collapse = ", ")
-      shinyjs::runjs(stringr::str_c("Split($('#",private$id, " > div'), {sizes: [",col_sizes,"], minSize: 260, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})"))
+      shinyjs::runjs(stringr::str_c("Split($('#",private$id, " > div'), {sizes: [",col_sizes,"], minSize: 270, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})"))
       
       private$observers$resize <- observe({
         print(stringr::str_c(private$id, "-resize"))
@@ -78,7 +78,7 @@ ElementalRow <- R6::R6Class(
       private$globals$elements <- append(private$globals$elements, private$columns)
     },
     
-    remove_column = function(column_id){
+    remove_column = function(column_id, input, output, session){
       # need the position of the column to remove it because the div with the column id is wrapped in a div without an id
       col_idx <- which(names(private$columns) == column_id)
 
@@ -92,7 +92,7 @@ ElementalRow <- R6::R6Class(
                     $('#",private$id," > .gutter').remove()
                     $('#",private$id,"').children().eq(",col_idx-1,").remove()
                     $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
-                    Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 260, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
+                    Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 270, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
                   "))
       
       # remove column from layout object
@@ -100,6 +100,11 @@ ElementalRow <- R6::R6Class(
       
       # update global list of UI elements, remove the deleted element from list
       private$globals$elements <- private$globals$elements[which(names(private$globals$elements)!=column_id)]
+      
+      # if this was the last column, also remove the row
+      if (length(private$columns)==0){
+        private$parent$remove_row(private$id, input, output, session, serialize = FALSE)
+      }
       
       # serialize!
       serialize(private$globals$modules, private$globals$pages)
@@ -139,7 +144,7 @@ ElementalRow <- R6::R6Class(
       # re-init splitjs              
       shinyjs::runjs(stringr::str_c("
         $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
-        Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 260, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
+        Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 270, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
       "))
       
       # use same class for new column as for existing column (this helps with the layout-visible thing)

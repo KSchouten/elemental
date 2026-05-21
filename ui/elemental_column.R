@@ -160,7 +160,7 @@ ElementalColumn <- R6::R6Class(
         print(removecolumn)
         
         # remove column
-        private$parent$remove_column(private$id)
+        private$parent$remove_column(private$id, input, output, session)
 
         # remove observers for this column
         purrr::walk(private$observers, ~.$destroy())
@@ -191,14 +191,15 @@ ElementalColumn <- R6::R6Class(
       private$observers$addrowafter <- observe({
         addrowafter <- stringr::str_c(private$id, "-addrowafter")
         req(input[[addrowafter]])
-        #private$parent$add_column(private$id, "after", input, output, session)
+        
+        private$parent$get_parent()$add_row(private$parent$get_id(), "after", input, output, session)
         print(addrowafter)
       }) %>% bindEvent(input[[stringr::str_c(private$id, "-addrowafter")]])
       
       private$observers$addrowbefore <- observe({
         addrowbefore <- stringr::str_c(private$id, "-addrowbefore")
         req(input[[addrowbefore]])
-        #private$parent$add_column(private$id, "after", input, output, session)
+        private$parent$get_parent()$add_row(private$parent$get_id(), "before", input, output, session)
         print(addrowbefore)
       }) %>% bindEvent(input[[stringr::str_c(private$id, "-addrowbefore")]])
       
