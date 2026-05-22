@@ -85,7 +85,7 @@ ElementalPage <- R6::R6Class(
       new_row$complete_ui_reactive(input, output, session)
       
       # serialize!
-      serialize(private$globals$modules, private$globals$pages)
+      serialize(pages = private$globals$pages)
     },
     
     remove_row = function(row_id, input, output, session, serialize = TRUE){
@@ -112,7 +112,7 @@ ElementalPage <- R6::R6Class(
       
       # serialize!
       if (serialize){
-        serialize(private$globals$modules, private$globals$pages)
+        serialize(pages = private$globals$pages)
       }
       
     },
@@ -124,7 +124,7 @@ ElementalPage <- R6::R6Class(
       
       # serialize!
       if (serialize){
-        serialize(private$globals$modules, private$globals$pages)
+        serialize(pages = private$globals$pages)
       }
     },
     

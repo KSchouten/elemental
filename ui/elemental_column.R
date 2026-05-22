@@ -153,7 +153,7 @@ ElementalColumn <- R6::R6Class(
         private$globals$elements <- append(private$globals$elements, list(new_tile) %>% setNames(new_tile$get_id()))
                  
         # serialize!
-        serialize(private$globals$modules, private$globals$pages)
+        serialize(pages = private$globals$pages)
       }) %>% bindEvent(input[[stringr::str_c(private$id, "-addtile")]])
       
       private$observers$removecolumn <- observe({
@@ -168,7 +168,7 @@ ElementalColumn <- R6::R6Class(
         purrr::walk(private$observers, ~.$destroy())
         
         # serialize!
-        serialize(private$globals$modules, private$globals$pages)
+        serialize(pages = private$globals$pages)
       }) %>% bindEvent(input[[stringr::str_c(private$id, "-removecolumn")]])
       
       private$observers$addcolumnbefore <- observe({

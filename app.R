@@ -86,7 +86,7 @@ server <- function(input, output, session) {
   globals$user <- "test"
   config <- jsonlite::read_json("pages.json")
   globals$modules <- purrr::imap(config$modules, function(module, id){
-    get_class(module$class)$new(id, module$title, globals, purrr::map(module$imports, unlist))
+    get_class(module$class)$new(id, module$title, globals, purrr::map(module$imports, unlist), config$state[[id]])
   })  
   
   globals$elements <- list()
@@ -142,7 +142,7 @@ server <- function(input, output, session) {
     nav_insert("page", new_page$get_ui(), target = last_page_id, position = "after")
     
     # serialize!
-    serialize(globals$modules, globals$pages)
+    serialize(pages = globals$pages)
     
     nav_select("page", selected = new_page$get_id())
     
@@ -158,7 +158,7 @@ server <- function(input, output, session) {
     globals$pages <- append(globals$pages[-idx], page, input$move_page$to_index)
 
     # serialize!
-    serialize(globals$modules, globals$pages)
+    serialize(pages = globals$pages)
   }) %>% bindEvent(input$move_page)
   
   # Handling moving tiles ------
@@ -174,7 +174,7 @@ server <- function(input, output, session) {
     tile$set_parent(to_column)
     
     # serialize!
-    serialize(globals$modules, globals$pages)
+    serialize(pages = globals$pages)
   }) %>% bindEvent(input$move_tile)
   
   # Handling moving modules ------
@@ -249,7 +249,7 @@ server <- function(input, output, session) {
     # no set_parent here because modules don't know in which tile they are
     
     # serialize!
-    serialize(globals$modules, globals$pages)
+    serialize(pages = globals$pages)
   }) %>% bindEvent(input$move_module)
   
   # Select first page

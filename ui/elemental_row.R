@@ -71,7 +71,7 @@ ElementalRow <- R6::R6Class(
         print(input[[stringr::str_c(private$id, "-resize")]])
         private$column_sizes <- input[[stringr::str_c(private$id, "-resize")]]
         # serialize
-        serialize(private$globals$modules, private$globals$pages)
+        serialize(pages = private$globals$pages)
       }) %>% bindEvent(input[[stringr::str_c(private$id, "-resize")]])
       
       purrr::walk(private$columns, ~.$complete_ui_reactive(input, output, session))
@@ -110,7 +110,7 @@ ElementalRow <- R6::R6Class(
       }
       
       # serialize!
-      serialize(private$globals$modules, private$globals$pages)
+      serialize(pages = private$globals$pages)
     },
     
     add_column = function(column_id, position = c("before", "after"), input, output, session){
@@ -162,7 +162,7 @@ ElementalRow <- R6::R6Class(
       new_col$complete_ui_reactive(input, output, session)
       
       # serialize!
-      serialize(private$globals$modules, private$globals$pages)
+      serialize(pages = private$globals$pages)
     },
     
     serialize = function(){

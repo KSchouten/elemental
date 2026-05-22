@@ -12,6 +12,7 @@ Module <- R6::R6Class(
     group = NA_character_,
     singleton = FALSE,
     introtour = list(),
+    state = list(),
     
     title = NA_character_,
     globals = list(),
@@ -34,10 +35,12 @@ Module <- R6::R6Class(
         )
       })
     }
+    
+    
   ),
   
   public = list(
-    initialize = function(id, title, globals, module_inputs){
+    initialize = function(id, title, globals, module_inputs, state){
       private$id <- id
       if (!is.null(title)){
         private$title <- title
@@ -46,6 +49,7 @@ Module <- R6::R6Class(
       }
       private$globals <- globals
       private$module_inputs <- module_inputs
+      private$state = state
     },
     
     get_id = function(){
@@ -66,9 +70,22 @@ Module <- R6::R6Class(
     get_introtour = function(){
       return(private$introtour)
     },
-    
+
     serialize = function(){
       list(class = class(self)[1], title = private$title, imports = private$module_inputs)
+    },
+    
+    get_state = function(){
+      return(private$state)
+    },
+    
+    stateful = function(varname, defaultvalue){
+      if (!varname %in% names(private$state)){
+        private$state[[varname]] <- defaultvalue
+        return(defaultvalue)
+      } else {
+        return(private$state[[varname]])
+      }
     },
     
     get_ui = function(){
@@ -81,7 +98,7 @@ Module <- R6::R6Class(
         
         # Override the observe function so we can automatically keep them in a list so we can properly destroy them when the module is removed
         observers <- list()
-        observe = function(x, env = parent.frame(), ...){
+        observe <- function(x, env = parent.frame(), ...){
           print("custom observe")
           force(env)
           obs <- shiny::observe(x, env, ...)
@@ -119,6 +136,18 @@ Module <- R6::R6Class(
           # This calls each unique module's server function
           private$server(input, output, session, module_inputs, module_outputs)
   
+          # Create observers for changes to stateful inputs
+          module_states_observers <- purrr::imap(private$state, function(value, varname){
+            observe({
+              quote({
+                print(stringr::str_c("[", session$ns(""), "] execute state observer for ", varname, ": ", value))
+                if (private$state[[varname]] != input[[varname]]){
+                  private$state[[varname]] <- input[[varname]]
+                  serialize(state = private$globals$modules)
+                }
+              })
+            }, quoted = TRUE) %>% bindEvent(input[[varname]])
+          })
           
           # Update the database when the user has changed some aspect of this module, like the imports
           module_outputs$notify_spec_change <- function(){

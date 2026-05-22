@@ -49,5 +49,10 @@
         {"class": "ElementalColumn", "tiles": []}
       ]}
     ]}
-  ]
+  ],
+  "state": {
+    "id_mod1": {
+      "slider": 5
+    }
+  }
 }

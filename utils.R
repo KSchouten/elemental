@@ -14,11 +14,31 @@ get_class <- function(classname){
   }
 }
 
-serialize <- function(modules, pages){
+serialize <- function(modules = NULL, pages = NULL, state = NULL){
+  params <- list()
+  if (!is.null(modules)) {
+    params$modules <- purrr::map(modules, ~.$serialize())
+    params$modules %>% toJSON() %>% jsonlite::prettify() %>% print()
+  }  
+  if (!is.null(pages)) {
+    params$pages <- purrr::map(pages, ~.$serialize()) %>% setNames(NULL)
+    params$pages %>% toJSON %>% jsonlite::prettify() %>% print()
+  }
+  if (!is.null(state)) {
+    params$state <- purrr::map(state, ~.$get_state())
+    params$state %>% toJSON() %>% jsonlite::prettify() %>% print()
+  }
+  # serialize queryString
+  # new_query <- purrr::imap_chr(params, function(value, name){
+  #   stringr::str_c(name, "=", value)
+  # }) %>% stringr::str_c(collapse = "&")
   
-  toJSON(list(
-    modules = purrr::map(modules, ~.$serialize()),
-    pages = purrr::map(pages, ~.$serialize()) %>% setNames(NULL)
-  )) %>% jsonlite::prettify() %>% print()
-  
+  if (!is.null(modules) && !is.null(pages) && !is.null(state)){
+    new_query <- toJSON(params) %>% openssl::base64_encode()
+    #new_query <- params %>% base::serialize(NULL) %>% openssl::base64_encode()
+    return(stringr::str_c("?config=", new_query))
+  } else {
+    return(NULL)
+  }
 }
+
