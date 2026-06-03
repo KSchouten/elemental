@@ -55,7 +55,7 @@ ui <- tagList(
     id = "page",
     lang = "en",
     fillable = FALSE,
-    nav_item(actionLink(inputId = stringr::str_c("new_page"), label = em("Nieuw..."), icon = icon("plus")), class = "first_button button", onclick = htmlwidgets::JS("this.blur()")),
+    nav_item(actionLink(inputId = stringr::str_c("new_page"), label = em("Nieuw..."), icon = icon("plus"), onclick = htmlwidgets::JS("this.blur()")), class = "first_button button"),
     nav_spacer(),
     nav_menu(
       title = "Links",
