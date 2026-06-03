@@ -70,10 +70,7 @@ ElementalPage <- R6::R6Class(
       insertUI(
         stringr::str_c("[data-value='",private$id, "'] > div:nth-child(",row_idx,")"), #data-value=id 
         if_else(position == "before", "beforeBegin", "afterEnd"),
-        div(
-          class = "bslib-grid-item bslib-gap-spacing html-fill-container",
-          new_row$get_ui()
-        ),
+        new_row$get_ui(),
         immediate = TRUE,
         session = session
       )
