@@ -84,6 +84,7 @@ const getGutterSize = (gutterSize, isFirst, isLast, gutterAlign) => {
 const defaultGutterFn = (i, gutterDirection) => {
     const gut = document.createElement('div')
     gut.className = `gutter gutter-${gutterDirection}`
+    gut.tabIndex = 0
     return gut
 }
 
@@ -303,33 +304,42 @@ const Split = (idsOption, options = {}) => {
             offset = Math.round(offset / dragInterval) * dragInterval
         }
 
-        // If within snapOffset of min or max, set offset to min or max.
-        // snapOffset buffers a.minSize and b.minSize, so logic is opposite for both.
-        // Include the appropriate gutter sizes to prevent overflows.
-        if (offset <= a.minSize + a.snapOffset + this[aGutterSize]) {
-            offset = a.minSize + this[aGutterSize]
-        } else if (
-            offset >=
-            this.size - (b.minSize + b.snapOffset + this[bGutterSize])
-        ) {
-            offset = this.size - (b.minSize + this[bGutterSize])
-        }
-
-        if (offset >= a.maxSize - a.snapOffset + this[aGutterSize]) {
-            offset = a.maxSize + this[aGutterSize]
-        } else if (
-            offset <=
-            this.size - (b.maxSize - b.snapOffset + this[bGutterSize])
-        ) {
-            offset = this.size - (b.maxSize + this[bGutterSize])
-        }
-
+        offset = correctOffset(a, b, this, offset)
+        
         // Actually adjust the size.
         adjust.call(this, offset)
 
         // Call the drag callback continously. Don't do anything too intensive
         // in this callback.
         getOption(options, 'onDrag', NOOP)(getSizes())
+    }
+    
+    function correctOffset(a, b, self, o){
+      // If within snapOffset of min or max, set offset to min or max.
+        // snapOffset buffers a.minSize and b.minSize, so logic is opposite for both.
+        // Include the appropriate gutter sizes to prevent overflows.
+        console.log(self.size)
+        
+        let offset = o
+        if (offset <= a.minSize + a.snapOffset + self[aGutterSize]) {
+            offset = a.minSize + self[aGutterSize]
+        } else if (
+            offset >=
+            self.size - (b.minSize + b.snapOffset + self[bGutterSize])
+        ) {
+            offset = self.size - (b.minSize + self[bGutterSize])
+        }
+
+        if (offset >= a.maxSize - a.snapOffset + self[aGutterSize]) {
+            offset = a.maxSize + self[aGutterSize]
+        } else if (
+            offset <=
+            self.size - (b.maxSize - b.snapOffset + self[bGutterSize])
+        ) {
+            offset = self.size - (b.maxSize + self[bGutterSize])
+        }
+
+        return offset
     }
 
     // Cache some important sizes when drag starts, so we don't have to do that
@@ -569,8 +579,7 @@ const Split = (idsOption, options = {}) => {
 
     // adjust sizes to ensure percentage is within min size and gutter.
     sizes = trimToMin(sizes)
-    console.log(sizes)
-    
+
     // 5. Create pair and element objects. Each pair has an index reference to
     // elements `a` and `b` of the pair (first and second elements).
     // Loop through the elements while pairing them off. Every pair gets a
@@ -651,6 +660,8 @@ const Split = (idsOption, options = {}) => {
             // Save bound event listener for removal later
             pair[gutterStartDragging] = startDragging.bind(pair)
 
+            pair[dragByKey] = dragByKey.bind(pair)
+
             // Attach bound event listener
             gutterElement[addEventListener](
                 'mousedown',
@@ -659,6 +670,10 @@ const Split = (idsOption, options = {}) => {
             gutterElement[addEventListener](
                 'touchstart',
                 pair[gutterStartDragging],
+            )
+            gutterElement[addEventListener](
+              'keydown',
+              pair[dragByKey],
             )
 
             parent.insertBefore(gutterElement, element.element)
@@ -759,6 +774,27 @@ const Split = (idsOption, options = {}) => {
                 })
             }
         })
+    }
+    
+    function dragByKey(e){
+      const self = this
+      const a = elements[self.a]
+      const b = elements[self.b]
+      calculateSizes.call(self)
+      const aBounds = a.element[getBoundingClientRect]()
+
+      if (direction === HORIZONTAL && e.key === "ArrowLeft" || direction !== HORIZONTAL && e.key === "ArrowUp") {
+        e.preventDefault()
+        newOffset = correctOffset(a, b, self, aBounds[dimension]-1.5*snapOffset)
+        adjust.call(this, newOffset)
+      }
+      if (direction === HORIZONTAL && e.key === "ArrowRight" || direction !== HORIZONTAL && e.key === "ArrowDown") {
+        e.preventDefault()
+        newOffset = correctOffset(a, b, self, aBounds[dimension]+1.5*snapOffset)
+        adjust.call(this, newOffset)
+      }
+      
+      
     }
 
     return {
