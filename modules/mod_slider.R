@@ -8,7 +8,7 @@ Slider <- R6::R6Class(
     default_page = NA_character_,
     imports = list(),
     exports = list("slider_value"),
-    params = list(),
+    params = list(min = 5, max = 50),
     group = NA_character_,
     singleton = FALSE,
 
@@ -17,14 +17,17 @@ Slider <- R6::R6Class(
       ns <- NS(private$id)
       div(
         h1(private$default_name),
-        shiny::sliderInput(ns("slider"), label = "Choose value", min = 0, max = 50, value = self$stateful("slider", 25))
+        shiny::sliderInput(ns("slider"), label = "Choose value", min = private$params$min, max = private$params$max, value = self$stateful("slider", 25))
       )
     },
     
     server = function(input, output, session, module_inputs, module_outputs){
       ns <- session$ns
+
       # Add a variable as an export
+      # Observer to update output value when UI is present and changed
       observe({
+        print("slider change")
         module_outputs$slider_value <- input$slider
       }) %>% bindEvent(input$slider)
     }

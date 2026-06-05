@@ -8,7 +8,8 @@ ElementalTile <- R6::R6Class(
     title = NA_character_,
     modules = list(),
     parent = NULL,
-    globals = NULL
+    globals = NULL,
+    observers = list()
   ),
   
   public = list(
@@ -132,8 +133,28 @@ ElementalTile <- R6::R6Class(
           }, 100);"))
         }
         
-        mod$start_server()
+        if (!mod$is_active()){
+          mod$start_server()
+        }
       })
+      
+      private$observers$settings <- observe({
+        # show settings
+        print(stringr::str_c(private$id,"-cog", "  ", input[[private$id]]))
+        
+        settings <- ElementalSettings$new(id = stringr::str_c(private$id,"-settings"), title = "Instellingen", globals = private$globals, module_inputs = list(), state = list(), module = private$globals$modules[[input[[private$id]]]])
+        settings$start_server()
+        showModal(modalDialog(settings$get_ui(), footer = NULL))
+        
+        
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-cog")]])
+      
+      private$observers$info <- observe({
+        # start intro tour
+        print(stringr::str_c(private$id,"-info", "  ", input[[private$id]]))
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-info")]])
+      
+      
     },
     
     serialize = function(){

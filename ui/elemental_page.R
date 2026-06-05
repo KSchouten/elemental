@@ -31,7 +31,7 @@ ElementalPage <- R6::R6Class(
     get_title = function(){
       return(private$title)
     },
-    get_active = function(){
+    is_active = function(){
       return(private$active)
     },
 
