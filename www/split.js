@@ -787,11 +787,13 @@ const Split = (idsOption, options = {}) => {
         e.preventDefault()
         newOffset = correctOffset(a, b, self, aBounds[dimension]-1.5*snapOffset)
         adjust.call(this, newOffset)
+        getOption(options, 'onDragEnd', NOOP)(getSizes())
       }
       if (direction === HORIZONTAL && e.key === "ArrowRight" || direction !== HORIZONTAL && e.key === "ArrowDown") {
         e.preventDefault()
         newOffset = correctOffset(a, b, self, aBounds[dimension]+1.5*snapOffset)
         adjust.call(this, newOffset)
+        getOption(options, 'onDragEnd', NOOP)(getSizes())
       }
       
       
