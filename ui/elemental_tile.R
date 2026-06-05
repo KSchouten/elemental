@@ -61,9 +61,16 @@ ElementalTile <- R6::R6Class(
         navset_card_tab(
           id = private$id,
           title = private$title,
-          full_screen = TRUE,
+          full_screen = FALSE,
           # modules go here later
-          nav_item(actionLink(inputId = stringr::str_c(private$id,"-cog"), label = "", icon = icon("cog")), class = "first_button button"),
+          
+          nav_menu("", value = "menu", icon = icon("bars"),
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-maximize"), label = "Volledig scherm", icon = icon("up-right-and-down-left-from-center"))),
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-title"), label = "Verander tegel titel", icon = icon("pen-to-square"))),
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-add"), label = "Module toevoegen", icon = icon("plus"))),
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-settings"), label = "Module instellingen", icon = icon("cog")))
+                   
+                   ),        
           nav_item(actionLink(inputId = stringr::str_c(private$id,"-info"), label = "", icon = icon("info")), class = "button"),
           
         ),
@@ -96,7 +103,7 @@ ElementalTile <- R6::R6Class(
             }
             return false
           } else { 
-            return !evt.dragged.classList.contains('button') && (evt.related.className === 'nav-item' || (evt.related.classList.contains('first_button') && !evt.willInsertAfter));
+            return !evt.dragged.classList.contains('dropdown') && !evt.dragged.classList.contains('button') && (evt.related.className === 'nav-item' || (evt.related.classList.contains('dropdown') && !evt.willInsertAfter));
           }
         }"
           ))
@@ -138,16 +145,28 @@ ElementalTile <- R6::R6Class(
         }
       })
       
+      private$observers$maximize <- observe({
+        print("maximize observer")
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-maximize")]])
+      
+      private$observers$title <- observe({
+        print("update title observer")
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-title")]])
+      
+      private$observers$add <- observe({
+        print("add module observer")
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-add")]])
+      
       private$observers$settings <- observe({
         # show settings
-        print(stringr::str_c(private$id,"-cog", "  ", input[[private$id]]))
+        print(stringr::str_c(private$id,"-settings", "  ", input[[private$id]]))
         
         settings <- ElementalSettings$new(id = stringr::str_c(private$id,"-settings"), title = "Instellingen", globals = private$globals, module_inputs = list(), state = list(), module = private$globals$modules[[input[[private$id]]]])
         settings$start_server()
         showModal(modalDialog(settings$get_ui(), footer = NULL))
         
         
-      }) %>% bindEvent(input[[stringr::str_c(private$id,"-cog")]])
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-settings")]])
       
       private$observers$info <- observe({
         # start intro tour
