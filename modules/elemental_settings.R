@@ -50,6 +50,18 @@ ElementalSettings <- R6::R6Class(
         # update title
         
       }) %>% bindEvent(input[["title"]])
+      
+      purrr::walk(private$module$get_params(), function(name){
+        observe({
+          quote({
+            value <- input[[stringr::str_c("param-", name)]]
+            req(value)
+            print(value)
+            # update param
+            private$module$set_param(name, value)
+          })
+        }, quoted = TRUE) %>% bindEvent(input[[stringr::str_c("param-", name)]], ignoreInit = TRUE)
+      })
             
       purrr::walk(private$module$get_inputs(), function(name){
         observe({

@@ -30,6 +30,21 @@ Slider <- R6::R6Class(
         print("slider change")
         module_outputs$slider_value <- input$slider
       }) %>% bindEvent(input$slider)
+      
+      observe({
+        print(stringr::str_c("Param {min: ",private$params$min, "}"))
+        if (is.numeric(private$params$min)){
+          updateSliderInput(inputId = "slider", min = private$params$min)
+          serialize(modules = private$globals$modules)
+        }
+      }) %>% bindEvent(private$params$min, ignoreInit = TRUE)
+      observe({
+        print(stringr::str_c("Param {min: ",private$params$max, "}"))
+        if (is.numeric(private$params$min)){
+          updateSliderInput(inputId = "slider", max = private$params$max)
+          serialize(modules = private$globals$modules)
+        }
+      }) %>% bindEvent(private$params$max, ignoreInit = TRUE)
     }
   ),
   

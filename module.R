@@ -9,6 +9,7 @@ Module <- R6::R6Class(
     imports = list(),
     exports = list(),
     params = list(),
+    
     group = NA_character_,
     singleton = FALSE,
     introtour = list(),
@@ -18,7 +19,7 @@ Module <- R6::R6Class(
     globals = list(),
     module_inputs = list(),
     module_outputs = list(),
-    
+
     active = FALSE,
 
     ui = function(){
@@ -50,6 +51,7 @@ Module <- R6::R6Class(
       private$globals <- globals
       private$module_inputs <- module_inputs
       private$state = state
+      
     },
     
     get_id = function(){
@@ -109,6 +111,7 @@ Module <- R6::R6Class(
     # these functions are defined inside the server function because they need reactivity
     # calling these before start_server() is called will result in an error
     set_input = NULL, 
+    set_param = NULL,
     remove = NULL, 
     
     start_server = function(){
@@ -156,6 +159,8 @@ Module <- R6::R6Class(
             }, quoted = TRUE)            
           })
           
+          private$params <- reactiveValues(!!!private$params)
+          
           module_outputs <- reactiveValues()
 
           # This calls each unique module's server function
@@ -196,6 +201,16 @@ Module <- R6::R6Class(
                 print("New value: NULL")
               }
               serialize(modules = private$globals$modules)
+            }
+          }
+          
+          self$set_param <- function(param_name, param_value){
+            if (private$params[[param_name]] == param_value){
+              return(NULL)
+            } else {
+              
+              private$params[[param_name]] <- param_value
+              
             }
           }
           
