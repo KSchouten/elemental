@@ -27,7 +27,7 @@
       {"class": "ElementalRow", "column_sizes": [30, 70], "columns": [
         {"class": "ElementalColumn", "tiles": [
           {"class": "ElementalTile", "title":"A title", "modules": ["id_mod5"]},
-          {"class": "ElementalTile", "title":"Control", "modules": ["id_mod1"]}
+          {"class": "ElementalTile", "title":"Control", "modules": []}
         ]},
         {"class": "ElementalColumn", "tiles": [
           {"class": "ElementalTile", "title": "Results", "modules": ["id_mod2"]}
@@ -43,7 +43,7 @@
     {"class": "ElementalPage", "title": "Page 2", "icon": "cog", "rows": [
       {"class": "ElementalRow", "column_sizes": [20, 30, 50], "columns": [
         {"class": "ElementalColumn", "tiles": [
-          {"class": "ElementalTile", "title": "Nieuw", "modules": []}
+          {"class": "ElementalTile", "title": "Nieuw", "modules": ["id_mod1"]}
         ]},
         {"class": "ElementalColumn", "tiles": []},
         {"class": "ElementalColumn", "tiles": []}

@@ -98,28 +98,37 @@ server <- function(input, output, session) {
   
   # Add pages to main UI
   observe({
-
     purrr::walk(rev(globals$pages), function(page){
+      # load UI of each page and its child components
       nav_insert("page", page$get_ui(), NULL, "before")
+      
     })
-
   }) %>% bindEvent(globals$pages, once = TRUE)
   
+  # Complete UI of each element and start server functions of modules
+  observe({
+    purrr::walk(rev(globals$pages), function(page){
+      # start server function of each page and its child components
+      page$complete_ui_reactive(input, output, session)
+    })
+  }) %>% bindEvent(input$page, once = TRUE)
+    
 
-  # Obs. change in selected page -- start module for newly clicked pages
+  # Obs. change in selected page
   observe({
     req(input$page)
     print(input$page)
     
     globals$current_page <- input$page
     
-    # If not started yet, start the server function for the selected page
-    # Should be one-time only
-    if (!globals$pages[[input$page]]$get_active()){
-      
-      globals$pages[[input$page]]$complete_ui_reactive(input, output, session)
-      
-    }
+    # # If not started yet, start the server function for the selected page
+    # # Should be one-time only
+    # if (!globals$pages[[input$page]]$is_active()){
+    #   
+    #   globals$pages[[input$page]]$complete_ui_reactive(input, output, session)
+    #   
+    # }
+    
     
   }) %>% bindEvent(input$page)
 
