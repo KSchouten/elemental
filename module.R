@@ -21,6 +21,7 @@ Module <- R6::R6Class(
     module_outputs = list(),
 
     active = FALSE,
+    fullscreen = FALSE, # this will be a reactiveVal
 
     ui = function(){
       ns <- NS(private$id)
@@ -105,6 +106,13 @@ Module <- R6::R6Class(
       }
     },
     
+    is_fullscreen = function(){
+      return(private$fullscreen())
+    },
+    set_fullscreen = function(value){
+      private$fullscreen(value)
+    },
+    
     get_ui = function(){
       private$ui()
     },
@@ -117,6 +125,7 @@ Module <- R6::R6Class(
     start_server = function(){
       if (!private$active){
         private$active <- TRUE
+        private$fullscreen <- reactiveVal(FALSE)
         
         # Override the observe function so we can automatically keep them in a list so we can properly destroy them when the module is removed
         observers <- list()

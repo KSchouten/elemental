@@ -167,6 +167,8 @@ ElementalTile <- R6::R6Class(
       private$observers$maximize <- observe({
         # we leverage the hidden fullscreen tooltip button (because of fullscreen=TRUE in the navset_card_tab) and just click it programmatically
         shinyjs::runjs(stringr::str_c("$('#", private$id, "').parent().parent().children().eq(2).children().click()"))
+        
+        
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-maximize")]], input[[stringr::str_c(private$id,"-header-maximize")]], ignoreInit = TRUE)
       
       private$observers$title <- observe({
@@ -196,6 +198,12 @@ ElementalTile <- R6::R6Class(
         # start intro tour
         print(stringr::str_c(private$id,"-menu-info", "  ", input[[private$id]]))
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-info")]], input[[stringr::str_c(private$id,"-header-info")]], ignoreInit = TRUE)
+      
+      observe({
+        print(stringr::str_c("Full screen: ",input[[stringr::str_c(private$id, "_full_screen")]]))
+        private$globals$modules[[input[[private$id]]]]$set_fullscreen(input[[stringr::str_c(private$id, "_full_screen")]])
+      }) %>% bindEvent(input[[stringr::str_c(private$id, "_full_screen")]], ignoreInit = TRUE)
+      
       
       # toggle between having the tile actions in a menu or as separate icons in the tile header
       self$use_menu = function(tile_menu = TRUE){

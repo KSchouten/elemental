@@ -17,13 +17,20 @@ Slider <- R6::R6Class(
       ns <- NS(private$id)
       div(
         h1(private$default_name),
-        shiny::sliderInput(ns("slider"), label = "Choose value", min = private$params$min, max = private$params$max, value = self$stateful("slider", 25))
+        uiOutput(ns("fullscreenmessage")),
+        shiny::sliderInput(ns("slider"), label = "Choose value", min = private$params$min, max = private$params$max, value = self$stateful("slider", 25), width = "100%")
       )
     },
     
     server = function(input, output, session, module_inputs, module_outputs){
       ns <- session$ns
 
+      output$fullscreenmessage <- renderUI({
+        if (self$is_fullscreen()){
+          p("Je bekijkt deze module nu in full screen mode!")
+        }
+      })
+      
       # Add a variable as an export
       # Observer to update output value when UI is present and changed
       observe({

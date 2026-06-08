@@ -31,6 +31,16 @@ function logKey(e){
 
 }
 
+document.addEventListener("bslib.card", communicateFullScreenState)
+
+function communicateFullScreenState(e){
+  //console.log(e)
+  //e.detail.fullScreen)
+  
+  var id = $(e.target).children().eq(0).children().eq(1).attr('id')
+  Shiny.setInputValue(id+'_full_screen', e.detail.fullScreen)
+}
+
 function move_module(evt){
   //console.log(evt.from.id);
   //evt.from.id
