@@ -26,13 +26,8 @@ ui <- tagList(
   rintrojs::introjsUI(),
   # Use shinyFeedback
   shinyFeedback::useShinyFeedback(),
-  # Custom CSS
-  tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
-    # Custom JS
-    tags$head(tags$script(src = "split.js")),
-    tags$head(tags$script(src = "script.js"))
-  ),
+  
+
   
   # Show loading screen when app is loading
   waiter::use_waiter(),
@@ -55,6 +50,14 @@ ui <- tagList(
       nav_item(tags$a(shiny::icon("github"), "Elemental @ GitHub", href = "https://github.com/KSchouten/elemental", target = "_blank")),
       
     )
+  ),
+  
+  tags$head(
+    # Custom CSS
+    tags$link(rel = "stylesheet", type = "text/css", href = "custom.css"),
+    # Custom JS
+    tags$head(tags$script(src = "split.js")),
+    tags$head(tags$script(src = "script.js"))
   )
   
 )

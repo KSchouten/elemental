@@ -67,7 +67,7 @@ ElementalTile <- R6::R6Class(
         navset_card_tab(
           id = private$id,
           title = private$title,
-          full_screen = FALSE,
+          full_screen = TRUE,
           # modules go here later
           
           nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-info"), label = "", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))), class = "first_button button"),
@@ -131,6 +131,9 @@ ElementalTile <- R6::R6Class(
       # add extra class to tablist ul element to ensure tabs are floating right also on Edge
       shinyjs::runjs(stringr::str_c("$('#",private$id,"').addClass('justify-content-end')"))
       
+      # add tabIndex to tile so we can select the tile by tab and do tile actions directly with keyboard
+      shinyjs::runjs(stringr::str_c("$('#",private$id,"').parent().parent().attr('tabindex',0)"))
+      
       # insert module UIs
       purrr::iwalk(rev(private$modules), function(mod_id, mod_idx){
 
@@ -162,7 +165,8 @@ ElementalTile <- R6::R6Class(
       
       
       private$observers$maximize <- observe({
-        print("maximize observer")
+        # we leverage the hidden fullscreen tooltip button (because of fullscreen=TRUE in the navset_card_tab) and just click it programmatically
+        shinyjs::runjs(stringr::str_c("$('#", private$id, "').parent().parent().children().eq(2).children().click()"))
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-maximize")]], input[[stringr::str_c(private$id,"-header-maximize")]], ignoreInit = TRUE)
       
       private$observers$title <- observe({

@@ -103,6 +103,15 @@
   min-height: 100px !important;
 }
 
+/* hide tile header when showing a module full screen, so it actually shows just the module, not the tile */
+div.bslib-card[data-full-screen="true"] > div.card-header {
+  display: none;
+}
+
+/* hide the full-screen tooltip button -> it is a tile action in the menu or header */
+.bslib-card > bslib-tooltip {
+  display: none;
+}
 
 /*-- OUD --*/
 
