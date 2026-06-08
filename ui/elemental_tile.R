@@ -10,6 +10,8 @@ ElementalTile <- R6::R6Class(
     parent = NULL,
     globals = NULL,
     observers = list()
+    
+    
   ),
   
   public = list(
@@ -54,6 +56,10 @@ ElementalTile <- R6::R6Class(
       private$modules <- append(private$modules, module_id, index) # can use 0-index here
     },
     
+    
+    
+    use_menu = NULL, # fill in with reactive function
+    
     get_ui = function(){
       print(stringr::str_c("get ui Tile ", private$id))
       tagList(
@@ -64,14 +70,22 @@ ElementalTile <- R6::R6Class(
           full_screen = FALSE,
           # modules go here later
           
-          nav_menu("", value = "menu", icon = icon("bars"),
-                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-maximize"), label = "Volledig scherm", icon = icon("up-right-and-down-left-from-center"))),
-                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-title"), label = "Verander tegel titel", icon = icon("pen-to-square"))),
-                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-add"), label = "Module toevoegen", icon = icon("plus"))),
-                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-settings"), label = "Module instellingen", icon = icon("cog")))
-                   
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-info"), label = "", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))), class = "first_button button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-title"), label = "", icon = icon("pen-to-square"))), class = "button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-maximize"), label = "", icon = icon("up-right-and-down-left-from-center"))), class = "button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-settings"), label = "", icon = icon("cog"))), class = "button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-add"), label = "", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))), class = "button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-remove"), label = "", icon = icon("trash-can"))), class = "button"),
+          
+          nav_menu("", value = "_menu_", icon = icon("bars"),
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-info"), label = "Start info tour", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-maximize"), label = "Volledig scherm", icon = icon("up-right-and-down-left-from-center")))),
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-title"), label = "Verander tegel titel", icon = icon("pen-to-square"))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-settings"), label = "Module instellingen", icon = icon("cog")))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-add"), label = "Module toevoegen", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;")))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove"), label = "Verwijder deze tegel", icon = icon("trash-can"))))
                    ),        
-          nav_item(actionLink(inputId = stringr::str_c(private$id,"-info"), label = "", icon = icon("info")), class = "button"),
+          
           
         ),
         
@@ -103,7 +117,7 @@ ElementalTile <- R6::R6Class(
             }
             return false
           } else { 
-            return !evt.dragged.classList.contains('dropdown') && !evt.dragged.classList.contains('button') && (evt.related.className === 'nav-item' || (evt.related.classList.contains('dropdown') && !evt.willInsertAfter));
+            return !evt.dragged.classList.contains('dropdown') && !evt.dragged.classList.contains('button') && (evt.related.className === 'nav-item' || (evt.related.classList.contains('first_button') && !evt.willInsertAfter));
           }
         }"
           ))
@@ -145,34 +159,91 @@ ElementalTile <- R6::R6Class(
         }
       })
       
+      
+      
       private$observers$maximize <- observe({
         print("maximize observer")
-      }) %>% bindEvent(input[[stringr::str_c(private$id,"-maximize")]])
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-maximize")]], input[[stringr::str_c(private$id,"-header-maximize")]], ignoreInit = TRUE)
       
       private$observers$title <- observe({
         print("update title observer")
-      }) %>% bindEvent(input[[stringr::str_c(private$id,"-title")]])
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-title")]], input[[stringr::str_c(private$id,"-header-title")]], ignoreInit = TRUE)
       
       private$observers$add <- observe({
         print("add module observer")
-      }) %>% bindEvent(input[[stringr::str_c(private$id,"-add")]])
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-add")]], input[[stringr::str_c(private$id,"-header-add")]], ignoreInit = TRUE)
+      
+      private$observers$remove <- observe({
+        print("remove tile observer")
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-remove")]], input[[stringr::str_c(private$id,"-header-remove")]], ignoreInit = TRUE)
       
       private$observers$settings <- observe({
         # show settings
-        print(stringr::str_c(private$id,"-settings", "  ", input[[private$id]]))
+        print(stringr::str_c(private$id,"-menu-settings", "  ", input[[private$id]]))
         
-        settings <- ElementalSettings$new(id = stringr::str_c(private$id,"-settings"), title = "Instellingen", globals = private$globals, module_inputs = list(), state = list(), module = private$globals$modules[[input[[private$id]]]])
+        settings <- ElementalModuleSettings$new(id = stringr::str_c(private$id,"-settings"), title = "Instellingen", globals = private$globals, module_inputs = list(), state = list(), module = private$globals$modules[[input[[private$id]]]])
         settings$start_server()
         showModal(modalDialog(settings$get_ui(), footer = NULL))
         
         
-      }) %>% bindEvent(input[[stringr::str_c(private$id,"-settings")]])
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-settings")]], input[[stringr::str_c(private$id,"-header-settings")]], ignoreInit = TRUE)
       
       private$observers$info <- observe({
         # start intro tour
-        print(stringr::str_c(private$id,"-info", "  ", input[[private$id]]))
-      }) %>% bindEvent(input[[stringr::str_c(private$id,"-info")]])
+        print(stringr::str_c(private$id,"-menu-info", "  ", input[[private$id]]))
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-info")]], input[[stringr::str_c(private$id,"-header-info")]], ignoreInit = TRUE)
       
+      # toggle between having the tile actions in a menu or as separate icons in the tile header
+      self$use_menu = function(tile_menu = TRUE){
+        
+        if (tile_menu){
+          # show menu
+          nav_show(private$id, "_menu_", session = session)
+          # hide all header buttons
+          shinyjs::runjs(stringr::str_c("$('#", private$id, " > .bslib-nav-item a').hide()"))
+          
+          # show/hide menu options depending on if there are modules shown in this tile
+          if (length(private$modules) > 0){
+            shinyjs::show(id = stringr::str_c(private$id,"-menu-settings"))
+            shinyjs::show(id = stringr::str_c(private$id,"-menu-maximize"))
+            
+            shinyjs::hide(id = stringr::str_c(private$id,"-menu-add"))
+            shinyjs::hide(id = stringr::str_c(private$id,"-menu-remove"))
+          } else {
+            shinyjs::show(id = stringr::str_c(private$id,"-menu-add"))
+            shinyjs::show(id = stringr::str_c(private$id,"-menu-remove"))
+            
+            shinyjs::hide(id = stringr::str_c(private$id,"-menu-settings"))
+            shinyjs::hide(id = stringr::str_c(private$id,"-menu-maximize"))
+          }
+        } else {
+          # hide the menu
+          nav_hide(private$id, "_menu_", session = session)
+          # show the default header buttons
+          #shinyjs::runjs(stringr::str_c("$('#", private$id, " > .bslib-nav-item a').show()"))
+          
+          shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-info').show()"))
+          shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-title').show()"))
+          
+          # show/hide more header butons depending on if there are modules shown in this tile
+          if (length(private$modules) > 0){
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-settings').show()"))
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-maximize').show()"))
+            
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-add').hide()"))
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove').hide()"))
+            
+          } else {
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-settings').hide()"))
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-maximize').hide()"))
+            
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-add').show()"))
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove').show()"))
+            
+          }
+        }
+      }
+      self$use_menu(private$globals$preferences$tile_menu)
       
     },
     

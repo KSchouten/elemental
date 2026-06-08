@@ -1,5 +1,5 @@
-ElementalSettings <- R6::R6Class(
-  "ElementalSettings", 
+ElementalModuleSettings <- R6::R6Class(
+  "ElementalModuleSettings", 
   inherit = Module,
   
   private = list(

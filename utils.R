@@ -14,7 +14,7 @@ get_class <- function(classname){
   }
 }
 
-serialize <- function(modules = NULL, pages = NULL, state = NULL){
+serialize <- function(modules = NULL, pages = NULL, state = NULL, preferences = NULL){
   params <- list()
   if (!is.null(modules)) {
     params$modules <- purrr::map(modules, ~.$serialize())
@@ -28,6 +28,10 @@ serialize <- function(modules = NULL, pages = NULL, state = NULL){
     params$state <- purrr::map(state, ~.$get_state())
     params$state %>% toJSON() %>% jsonlite::prettify() %>% print()
   }
+  if (!is.null(preferences)) {
+    params$preferences <- preferences %>% toJSON() %>% jsonlite::prettify() %>% print()
+  }
+  
   # serialize queryString
   # new_query <- purrr::imap_chr(params, function(value, name){
   #   stringr::str_c(name, "=", value)
@@ -41,4 +45,21 @@ serialize <- function(modules = NULL, pages = NULL, state = NULL){
     return(NULL)
   }
 }
+
+create_theme <- function(theme = "shiny"){
+  bslib::bs_theme(preset = theme) %>%
+    bslib::bs_add_variables(
+      #"spacer" = "0.5rem",         # make site more compact
+      "bslib-spacer" = "0.5rem",    # make column gaps smaller
+      "grid-breakpoints" = "(
+        xs: 0,
+        sm: 768px,
+        md: 768px, 
+        lg: 992px,
+        xl: 1200px,
+        xxl: 1400px)", # 0, 576, 768, 992, 1200, 1400
+      .where = "declarations"
+    ) 
+}
+
 

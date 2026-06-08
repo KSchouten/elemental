@@ -15,19 +15,7 @@ source("module.R")
 list.files("modules", full.names = TRUE) %>% purrr::walk(source)
 list.files("ui", full.names = TRUE) %>% purrr::walk(source)
 
-theme <- bslib::bs_theme() %>%
-  bslib::bs_add_variables(
-    #"spacer" = "0.5rem",         # make site more compact
-    "bslib-spacer" = "0.5rem",    # make column gaps smaller
-    "grid-breakpoints" = "(
-        xs: 0,
-        sm: 768px,
-        md: 768px, 
-        lg: 992px,
-        xl: 1200px,
-        xxl: 1400px)", # 0, 576, 768, 992, 1200, 1400
-    .where = "declarations"
-  ) 
+theme <- create_theme()
 
 # Define UI for application
 ui <- tagList(
@@ -58,10 +46,14 @@ ui <- tagList(
     nav_item(actionLink(inputId = stringr::str_c("new_page"), label = em("Nieuw..."), icon = icon("plus"), onclick = htmlwidgets::JS("this.blur()")), class = "first_button button"),
     nav_spacer(),
     nav_menu(
-      title = "Links",
+      title = "Instellingen",
+      icon = icon("cog"),
       align = "right",
-      nav_item(tags$a(shiny::icon("github"), "Shiny", href = "https://github.com/rstudio/shiny", target = "_blank")),
-      nav_item(tags$a(shiny::icon("r-project"), "Posit", href = "https://posit.co", target = "_blank"))
+      nav_item(actionLink(inputId = stringr::str_c("change_page_title"), label = "Verander pagina titel", icon = icon("pen-to-square"))),
+      nav_item(actionLink(inputId = stringr::str_c("print_page"), label = "Print pagina", icon = icon("print"))),
+      nav_item(actionLink(inputId = stringr::str_c("preferences"), label = "Voorkeuren", icon = icon("sliders"))),
+      nav_item(tags$a(shiny::icon("github"), "Elemental @ GitHub", href = "https://github.com/KSchouten/elemental", target = "_blank")),
+      
     )
   )
   
@@ -85,6 +77,9 @@ server <- function(input, output, session) {
   # Currently loads default page setup from pages.json
   globals$user <- "test"
   config <- jsonlite::read_json("pages.json")
+  
+  globals$preferences <- config$preferences
+  
   globals$modules <- purrr::imap(config$modules, function(module, id){
     get_class(module$class)$new(id, module$title, globals, purrr::map(module$imports, unlist), config$state[[id]])
   })  
@@ -121,13 +116,13 @@ server <- function(input, output, session) {
     
     globals$current_page <- input$page
     
-    # # If not started yet, start the server function for the selected page
-    # # Should be one-time only
-    # if (!globals$pages[[input$page]]$is_active()){
-    #   
-    #   globals$pages[[input$page]]$complete_ui_reactive(input, output, session)
-    #   
-    # }
+    # If not started yet, start the server function for the selected page
+    # Should be one-time only and only for newly-created pages
+    if (!globals$pages[[input$page]]$is_active()){
+
+      globals$pages[[input$page]]$complete_ui_reactive(input, output, session)
+
+    }
     
     
   }) %>% bindEvent(input$page)
@@ -149,6 +144,7 @@ server <- function(input, output, session) {
     globals$pages <- append(globals$pages, list(new_page) %>% setNames(new_page$get_id()))
     
     nav_insert("page", new_page$get_ui(), target = last_page_id, position = "after")
+    
     
     # serialize!
     serialize(pages = globals$pages)
@@ -260,6 +256,14 @@ server <- function(input, output, session) {
     # serialize!
     serialize(pages = globals$pages)
   }) %>% bindEvent(input$move_module)
+  
+  # Preferences ----
+  observe({
+    preferences <- ElementalPreferences$new(id = "model_preferences", title = "Voorkeuren", globals = globals, module_inputs = list(), state = list())
+    preferences$start_server()
+    showModal(modalDialog(preferences$get_ui(), footer = NULL))
+  }) %>% bindEvent(input$preferences)
+  
   
   # Select first page
   shinydashboard::updateTabItems(inputId = "page", selected = isolate(globals$pages[[1]]$get_id()))
