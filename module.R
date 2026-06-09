@@ -64,6 +64,9 @@ Module <- R6::R6Class(
     get_title = function(){
       return(private$title)
     },
+    set_title = function(title){
+      private$title <- title
+    },
     is_active = function(){
       return(private$active)
     },
@@ -84,7 +87,7 @@ Module <- R6::R6Class(
     },
 
     serialize = function(){
-      list(class = class(self)[1], title = private$title, imports = private$module_inputs)
+      list(class = class(self)[1], title = private$title, imports = private$module_inputs, params = as.list(private$params))
     },
     
     get_state = function(){

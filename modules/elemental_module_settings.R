@@ -48,15 +48,19 @@ ElementalModuleSettings <- R6::R6Class(
       observe({
         print(input$title)
         # update title
+        private$module$set_title(input$title)
+       
+        shinyjs::runjs(stringr::str_c("$('a[data-value=", private$module$get_id(),"]').text('", input$title, "')"))
         
-      }) %>% bindEvent(input[["title"]])
+        serialize(modules = private$globals$modules)
+      }) %>% bindEvent(input[["title"]], ignoreInit = TRUE)
       
       purrr::walk(private$module$get_params(), function(name){
         observe({
           quote({
             value <- input[[stringr::str_c("param-", name)]]
             req(value)
-            print(value)
+            
             # update param
             private$module$set_param(name, value)
           })

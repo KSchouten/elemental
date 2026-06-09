@@ -72,17 +72,17 @@ ElementalTile <- R6::R6Class(
           
           nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-info"), label = "", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))), class = "first_button button"),
           nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-title"), label = "", icon = icon("pen-to-square"))), class = "button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-add"), label = "", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))), class = "button"),
           nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-maximize"), label = "", icon = icon("up-right-and-down-left-from-center"))), class = "button"),
           nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-settings"), label = "", icon = icon("cog"))), class = "button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-add"), label = "", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))), class = "button"),
           nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-remove"), label = "", icon = icon("trash-can"))), class = "button"),
           
           nav_menu("", value = "_menu_", icon = icon("bars"),
                    nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-info"), label = "Start info tour", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))),
-                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-maximize"), label = "Volledig scherm", icon = icon("up-right-and-down-left-from-center")))),
                    nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-title"), label = "Verander tegel titel", icon = icon("pen-to-square"))),
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-add"), label = "Module toevoegen", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-maximize"), label = "Volledig scherm", icon = icon("up-right-and-down-left-from-center")))),
                    nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-settings"), label = "Module instellingen", icon = icon("cog")))),
-                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-add"), label = "Module toevoegen", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;")))),
                    nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove"), label = "Verwijder deze tegel", icon = icon("trash-can"))))
                    ),        
           
@@ -219,10 +219,8 @@ ElementalTile <- R6::R6Class(
             shinyjs::show(id = stringr::str_c(private$id,"-menu-settings"))
             shinyjs::show(id = stringr::str_c(private$id,"-menu-maximize"))
             
-            shinyjs::hide(id = stringr::str_c(private$id,"-menu-add"))
             shinyjs::hide(id = stringr::str_c(private$id,"-menu-remove"))
           } else {
-            shinyjs::show(id = stringr::str_c(private$id,"-menu-add"))
             shinyjs::show(id = stringr::str_c(private$id,"-menu-remove"))
             
             shinyjs::hide(id = stringr::str_c(private$id,"-menu-settings"))
@@ -236,20 +234,20 @@ ElementalTile <- R6::R6Class(
           
           shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-info').show()"))
           shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-title').show()"))
+          shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-add').show()"))
           
           # show/hide more header butons depending on if there are modules shown in this tile
           if (length(private$modules) > 0){
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-settings').show()"))
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-maximize').show()"))
             
-            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-add').hide()"))
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove').hide()"))
             
           } else {
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-settings').hide()"))
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-maximize').hide()"))
             
-            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-add').show()"))
+
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove').show()"))
             
           }

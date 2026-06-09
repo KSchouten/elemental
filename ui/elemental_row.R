@@ -64,7 +64,7 @@ ElementalRow <- R6::R6Class(
       
       
       col_sizes <- private$column_sizes %>% stringr::str_c(collapse = ", ")
-      shinyjs::runjs(stringr::str_c("Split($('#",private$id, " > div'), {sizes: [",col_sizes,"], minSize: 270, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})"))
+      shinyjs::runjs(stringr::str_c("Split($('#",private$id, " > div'), {sizes: [",col_sizes,"], minSize: 300, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})"))
       
       private$observers$resize <- observe({
         print(stringr::str_c(private$id, "-resize"))
@@ -105,7 +105,7 @@ ElementalRow <- R6::R6Class(
         # otherwise reset grid-template-columns, re-init split
         shinyjs::runjs(stringr::str_c("
                     $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
-                    Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 270, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
+                    Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 300, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
                   "))
       }
       
@@ -147,7 +147,7 @@ ElementalRow <- R6::R6Class(
       # re-init splitjs              
       shinyjs::runjs(stringr::str_c("
         $('#",private$id,"').css('grid-template-columns', '", stringr::str_c(private$column_sizes, "fr", collapse = " 10px "), "');
-        Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 270, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
+        Split($('#",private$id, " > div'), {sizes: [",private$column_sizes %>% stringr::str_c(collapse = ", "),"], minSize: 300, onDragEnd: function(sizes){Shiny.setInputValue('",private$id,"-resize', sizes);}})
       "))
       
       # use same class for new column as for existing column (this helps with the layout-visible thing)

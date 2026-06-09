@@ -99,8 +99,9 @@
   padding-right: 2px;
 }
 
-.tab-content {
-  min-height: 100px !important;
+div.tab-content.html-fill-container {
+  min-height: 100px;
+  padding: 5px;
 }
 
 /* hide tile header when showing a module full screen, so it actually shows just the module, not the tile */
@@ -112,6 +113,12 @@ div.bslib-card[data-full-screen="true"] > div.card-header {
 .bslib-card > bslib-tooltip {
   display: none;
 }
+
+/* On Edge the card header is too thin and lines of the tabs are peeking through */
+div.bslib-card div.card-header {
+  min-height: 3rem;
+}
+
 
 /*-- OUD --*/
 

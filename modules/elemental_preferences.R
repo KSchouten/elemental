@@ -4,7 +4,7 @@ ElementalPreferences <- R6::R6Class(
   
   private = list(
     
-    default_name = "Voorkeueren",
+    default_name = "Voorkeuren",
     default_page = NA_character_,
     imports = list(),
     params = list(),

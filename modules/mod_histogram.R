@@ -35,10 +35,6 @@ Histogram <- R6::R6Class(
         bins <- seq(min(x), max(x), length.out = module_inputs$number_bins + 1)
 
         # draw the histogram with the specified number of bins
-        # hist(x, breaks = bins, col = 'darkgray', border = 'white',
-        #      xlab = 'Waiting time to next eruption (in mins)',
-        #      main = 'Histogram of waiting times')
-        
         plotly::plot_ly() %>%
           plotly::add_histogram(x = ~x, name = "Variable 1", nbinsx = module_inputs$number_bins + 1, opacity = 1) %>%
           plotly::layout(title = "Histogram of waiting times",
