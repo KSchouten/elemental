@@ -34,7 +34,7 @@ function logKey(e){
 document.addEventListener("bslib.card", communicateFullScreenState)
 
 function communicateFullScreenState(e){
-  //console.log(e)
+  console.log(e)
   //e.detail.fullScreen)
   
   var id = $(e.target).children().eq(0).children().eq(1).attr('id')

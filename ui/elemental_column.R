@@ -34,7 +34,14 @@ ElementalColumn <- R6::R6Class(
     },
     
     # just the object operation, not the UI part
-    remove_tile = function(index){
+    remove_tile = function(i){
+      if (is.numeric(i)){
+        # an index is given
+        index <- i
+      } else {
+        # an id is given
+        index <- which(names(private$tiles) == i)
+      }
       tile <- private$tiles[[index]] # need 1-index here
       private$tiles <- private$tiles[-index]
       return(tile)

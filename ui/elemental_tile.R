@@ -168,13 +168,13 @@ ElementalTile <- R6::R6Class(
       
       
       private$observers$maximize <- observe({
+        req(input[[stringr::str_c(private$id,"-menu-maximize")]] + input[[stringr::str_c(private$id,"-header-maximize")]] > 0)
         # we leverage the hidden fullscreen tooltip button (because of fullscreen=TRUE in the navset_card_tab) and just click it programmatically
         shinyjs::runjs(stringr::str_c("$('#", private$id, "').parent().parent().children().eq(2).children().click()"))
-        
-        
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-maximize")]], input[[stringr::str_c(private$id,"-header-maximize")]], ignoreInit = TRUE)
       
       private$observers$title <- observe({
+        req(input[[stringr::str_c(private$id,"-menu-title")]] + input[[stringr::str_c(private$id,"-header-title")]] > 0)
         print("update title observer")
         edit_title <- ElementalEditTitle$new(id = stringr::str_c(private$id,"-title"), title = "Verander titel", globals = private$globals, module_inputs = list(), state = list(), ui_element = self)
         edit_title$start_server()
@@ -183,14 +183,21 @@ ElementalTile <- R6::R6Class(
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-title")]], input[[stringr::str_c(private$id,"-header-title")]], ignoreInit = TRUE)
       
       private$observers$add <- observe({
+        req(input[[stringr::str_c(private$id,"-menu-add")]] + input[[stringr::str_c(private$id,"-header-add")]] > 0)
         print("add module observer")
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-add")]], input[[stringr::str_c(private$id,"-header-add")]], ignoreInit = TRUE)
       
       private$observers$remove <- observe({
+        req(input[[stringr::str_c(private$id,"-menu-remove")]] + input[[stringr::str_c(private$id,"-header-remove")]] > 0)
         print("remove tile observer")
+        private$parent$remove_tile(private$id)
+        shinyjs::runjs(stringr::str_c("$('#", private$id, "').parent().parent().parent().remove()"))
+        
+        serialize(pages = private$globals$pages)
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-remove")]], input[[stringr::str_c(private$id,"-header-remove")]], ignoreInit = TRUE)
       
       private$observers$settings <- observe({
+        req(input[[stringr::str_c(private$id,"-menu-settings")]] + input[[stringr::str_c(private$id,"-header-settings")]] > 0)
         # show settings
         print(stringr::str_c(private$id,"-menu-settings", "  ", input[[private$id]]))
         
@@ -202,6 +209,7 @@ ElementalTile <- R6::R6Class(
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-settings")]], input[[stringr::str_c(private$id,"-header-settings")]], ignoreInit = TRUE)
       
       private$observers$info <- observe({
+        req(input[[stringr::str_c(private$id,"-menu-info")]] + input[[stringr::str_c(private$id,"-header-info")]] > 0)
         # start intro tour
         print(stringr::str_c(private$id,"-menu-info", "  ", input[[private$id]]))
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-info")]], input[[stringr::str_c(private$id,"-header-info")]], ignoreInit = TRUE)
