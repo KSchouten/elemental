@@ -28,6 +28,10 @@ ElementalPage <- R6::R6Class(
     get_id = function(){
       return(private$id)
     },
+    set_title = function(title){
+      private$title <- title
+      shinyjs::runjs(stringr::str_c("$('a[data-value=",private$id,"]').html('", as.character(icon(private$icon)), " ",title, "')"))
+    },
     get_title = function(){
       return(private$title)
     },

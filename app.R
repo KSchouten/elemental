@@ -6,6 +6,7 @@
 #
 #    https://shiny.posit.co/
 #
+#install.packages(c("sortable"))
 
 library(shiny)
 library(dplyr)
@@ -44,9 +45,9 @@ ui <- tagList(
       title = "Instellingen",
       icon = icon("cog"),
       align = "right",
-      nav_item(actionLink(inputId = stringr::str_c("change_page_title"), label = "Verander pagina titel", icon = icon("pen-to-square"))),
-      nav_item(actionLink(inputId = stringr::str_c("print_page"), label = "Print pagina", icon = icon("print"))),
-      nav_item(actionLink(inputId = stringr::str_c("preferences"), label = "Voorkeuren", icon = icon("sliders"))),
+      nav_item(actionLink(inputId = "change_page_title", label = "Verander pagina titel", icon = icon("pen-to-square"))),
+      nav_item(actionLink(inputId = "print_page", label = "Print pagina", icon = icon("print"))),
+      nav_item(actionLink(inputId = "preferences", label = "Voorkeuren", icon = icon("sliders"))),
       nav_item(tags$a(shiny::icon("github"), "Elemental @ GitHub", href = "https://github.com/KSchouten/elemental", target = "_blank")),
       
     )
@@ -267,6 +268,13 @@ server <- function(input, output, session) {
     showModal(modalDialog(preferences$get_ui(), footer = NULL))
   }) %>% bindEvent(input$preferences)
   
+  # Page title ----
+  observe({
+    
+    edit_title <- ElementalEditTitle$new(id = stringr::str_c("edit-page-title"), title = "Verander titel", globals = globals, module_inputs = list(), state = list(), ui_element = globals$pages[[input$page]])
+    edit_title$start_server()
+    showModal(modalDialog(edit_title$get_ui(), footer = NULL))
+  }) %>% bindEvent(input$change_page_title)
   
   # Select first page
   shinydashboard::updateTabItems(inputId = "page", selected = isolate(globals$pages[[1]]$get_id()))

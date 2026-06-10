@@ -33,7 +33,10 @@ ElementalTile <- R6::R6Class(
     get_id = function(){
       return(private$id)
     },
-    
+    set_title = function(title){
+      private$title <- title
+      shinyjs::runjs(stringr::str_c("$('#",private$id,"').parent().children().eq(0).text('", title, "')"))
+    },
     get_title = function(){
       return(private$title)
     },
@@ -173,6 +176,10 @@ ElementalTile <- R6::R6Class(
       
       private$observers$title <- observe({
         print("update title observer")
+        edit_title <- ElementalEditTitle$new(id = stringr::str_c(private$id,"-title"), title = "Verander titel", globals = private$globals, module_inputs = list(), state = list(), ui_element = self)
+        edit_title$start_server()
+        showModal(modalDialog(edit_title$get_ui(), footer = NULL))
+        
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-title")]], input[[stringr::str_c(private$id,"-header-title")]], ignoreInit = TRUE)
       
       private$observers$add <- observe({
