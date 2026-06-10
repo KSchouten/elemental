@@ -1,18 +1,12 @@
 ElementalModuleSettings <- R6::R6Class(
   "ElementalModuleSettings", 
-  inherit = Module,
+  inherit = Element,
   
   private = list(
     
-    default_name = "Instellingen",
-    default_page = NA_character_,
-    imports = list(),
-    params = list(),
-    group = NA_character_,
-    singleton = TRUE,
-    
+    title = "Module instellingen",
     module = NULL,
-    exports = list(),
+    all_available_exports = list(),
     
     # Override this for module-specific UI
     ui = function(){
@@ -31,13 +25,13 @@ ElementalModuleSettings <- R6::R6Class(
         h4("Afhankelijkheden"),
         !!!purrr::map(private$module$get_inputs(), function(name){
           
-          selectInput(ns(stringr::str_c("input-", name)), name, private$exports, selected = stringr::str_c(private$module$get_input(name), collapse = " "))
+          selectInput(ns(stringr::str_c("input-", name)), name, private$all_available_exports, selected = stringr::str_c(private$module$get_input(name), collapse = " "))
         }),
         actionButton(ns("done"), "Gereed")
       )
     },
     
-    server = function(input, output, session, module_inputs, module_outputs){
+    server = function(input, output, session){
       ns <- session$ns
 
       observe({
@@ -81,18 +75,18 @@ ElementalModuleSettings <- R6::R6Class(
       
       # purrr::map(private$module$get_inputs(), function(name){
       #   id <- stringr::str_c(private$id, "-", name)
-      #   updateSelectInput(inputId = id, choices = exports, selected = input[[id]])
+      #   updateSelectInput(inputId = id, choices = all_available_exports, selected = input[[id]])
       # })
     }
   ),
   
   public = list(
     
-    initialize = function(id, title, globals, module_inputs, state, module){
-      super$initialize(id, title, globals, module_inputs, state)
+    initialize = function(id, title, globals, module){
+      super$initialize(id, title, globals)
       private$module <- module
       
-      private$exports <- purrr::map(private$globals$modules, function(m){
+      private$all_available_exports <- purrr::map(private$globals$modules, function(m){
         stringr::str_c(m$get_id(), " ", m$get_outputs()) %>% setNames(stringr::str_c(m$get_title(), " -> ", m$get_outputs()))
       }) %>% purrr::flatten()
     }

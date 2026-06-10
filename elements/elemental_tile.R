@@ -18,7 +18,7 @@ ElementalTile <- R6::R6Class(
     
     initialize = function(layout, parent, globals){
       # generate id, no ns as we want to be able to move these between pages
-      private$id <- stringr::str_replace((stringr::str_c("tile-",as.numeric(lubridate::now()))), "[.]","")
+      private$id <- generate_id()
       
       private$title <- layout$title
       
@@ -49,19 +49,22 @@ ElementalTile <- R6::R6Class(
       private$parent <- column
     },
     
-    remove_module = function(index){
+    # remove a still existing module (dragged to another tile)
+    lose_module = function(index){
       module_id <- private$modules[[index]] # need 1-index here
       private$modules <- private$modules[-index]
       return(module_id)
     },
     
-    add_module = function(module_id, index){
+    # adding an existing module (dragged from another tile)
+    receive_module = function(module_id, index){
       private$modules <- append(private$modules, module_id, index) # can use 0-index here
     },
     
-    
-    
-    use_menu = NULL, # fill in with reactive function
+    # fill in with reactive function
+    add_module = NULL, 
+    remove_module = NULL,
+    use_menu = NULL, 
     
     get_ui = function(){
       print(stringr::str_c("get ui Tile ", private$id))
@@ -138,8 +141,7 @@ ElementalTile <- R6::R6Class(
       shinyjs::runjs(stringr::str_c("$('#",private$id,"').parent().parent().attr('tabindex',0)"))
       
       # insert module UIs
-      purrr::iwalk(rev(private$modules), function(mod_id, mod_idx){
-
+      insert_module <- function(mod_id, mod_idx){
         mod <- private$globals$modules[[mod_id]]
         
         # easiest thing is to insert in reverse order so we can always add the newest tab at the front
@@ -163,10 +165,9 @@ ElementalTile <- R6::R6Class(
         if (!mod$is_active()){
           mod$start_server()
         }
-      })
-      
-      
-      
+      }
+      purrr::iwalk(rev(private$modules), insert_module)
+
       private$observers$maximize <- observe({
         req(input[[stringr::str_c(private$id,"-menu-maximize")]] + input[[stringr::str_c(private$id,"-header-maximize")]] > 0)
         # we leverage the hidden fullscreen tooltip button (because of fullscreen=TRUE in the navset_card_tab) and just click it programmatically
@@ -176,7 +177,7 @@ ElementalTile <- R6::R6Class(
       private$observers$title <- observe({
         req(input[[stringr::str_c(private$id,"-menu-title")]] + input[[stringr::str_c(private$id,"-header-title")]] > 0)
         print("update title observer")
-        edit_title <- ElementalEditTitle$new(id = stringr::str_c(private$id,"-title"), title = "Verander titel", globals = private$globals, module_inputs = list(), state = list(), ui_element = self)
+        edit_title <- ElementalEditTitle$new(id = stringr::str_c(private$id,"-title"), title = "Verander titel", globals = private$globals, ui_element = self)
         edit_title$start_server()
         showModal(modalDialog(edit_title$get_ui(), footer = NULL))
         
@@ -185,6 +186,9 @@ ElementalTile <- R6::R6Class(
       private$observers$add <- observe({
         req(input[[stringr::str_c(private$id,"-menu-add")]] + input[[stringr::str_c(private$id,"-header-add")]] > 0)
         print("add module observer")
+        add_module <- ElementalAddModule$new(id = stringr::str_c(private$id,"-title"), title = "Module toevoegen", globals = private$globals, tile = self)
+        add_module$start_server()
+        showModal(modalDialog(add_module$get_ui(), footer = NULL))
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-add")]], input[[stringr::str_c(private$id,"-header-add")]], ignoreInit = TRUE)
       
       private$observers$remove <- observe({
@@ -201,7 +205,7 @@ ElementalTile <- R6::R6Class(
         # show settings
         print(stringr::str_c(private$id,"-menu-settings", "  ", input[[private$id]]))
         
-        settings <- ElementalModuleSettings$new(id = stringr::str_c(private$id,"-settings"), title = "Instellingen", globals = private$globals, module_inputs = list(), state = list(), module = private$globals$modules[[input[[private$id]]]])
+        settings <- ElementalModuleSettings$new(id = stringr::str_c(private$id,"-settings"), title = "Instellingen", globals = private$globals, module = private$globals$modules[[input[[private$id]]]])
         settings$start_server()
         showModal(modalDialog(settings$get_ui(), footer = NULL))
         
@@ -270,6 +274,21 @@ ElementalTile <- R6::R6Class(
       }
       self$use_menu(private$globals$preferences$tile_menu)
       
+      # add a new module
+      self$add_module = function(classname){
+        id = generate_id()
+        mod = get_class(classname)
+        new_module <- mod$new(id, mod$name, private$globals, module_inputs = NULL, state = NULL)
+        private$globals$modules[[id]] <- new_module
+        private$modules <- append(private$modules, id, after = 0)
+        # reuse code to add the modules at startup
+        insert_module(id, length(private$modules))
+      }
+      
+      # remove a module from tile (and dashboard)
+      self$remove_module = function(module_id){
+        
+      }
     },
     
     serialize = function(){

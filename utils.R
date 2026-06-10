@@ -14,6 +14,10 @@ get_class <- function(classname){
   }
 }
 
+generate_id <- function(){
+  stringr::str_replace((stringr::str_c("tile-",as.numeric(lubridate::now()))), "[.]","")
+}
+
 serialize <- function(modules = NULL, pages = NULL, state = NULL, preferences = NULL){
   params <- list()
   if (!is.null(modules)) {

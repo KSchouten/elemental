@@ -4,19 +4,15 @@ Slider <- R6::R6Class(
   
   private = list(
     
-    default_name = "slider",
-    default_page = NA_character_,
     imports = list(),
     exports = list("slider_value"),
     params = list(min = 5, max = 50),
-    group = NA_character_,
-    singleton = FALSE,
-
+    
     # Override this for module-specific UI
     ui = function(){
       ns <- NS(private$id)
       div(
-        h1(private$default_name),
+        h1(Slider$default_name),
         uiOutput(ns("fullscreenmessage")),
         shiny::sliderInput(ns("slider"), label = "Choose value", min = private$params$min, max = private$params$max, value = self$stateful("slider", 25), width = "100%")
       )
@@ -69,3 +65,9 @@ Slider <- R6::R6Class(
     
   )
 )
+#defaults
+Slider$name = "Slider"
+Slider$page = NA_character_
+Slider$group = NA_character_
+Slider$singleton = FALSE
+Slider$category = "input"

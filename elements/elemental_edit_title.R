@@ -1,18 +1,12 @@
 ElementalEditTitle <- R6::R6Class(
   "ElementalEditTitle", 
-  inherit = Module,
+  inherit = Element,
   
   private = list(
     
-    default_name = "Verander titel",
-    default_page = NA_character_,
-    imports = list(),
-    params = list(),
-    group = NA_character_,
-    singleton = TRUE,
-    
+    title = "Verander titel",
     ui_element = NULL,
-    exports = list(),
+    
     
     # Override this for module-specific UI
     ui = function(){
@@ -20,7 +14,7 @@ ElementalEditTitle <- R6::R6Class(
       ns <- NS(private$id)
       div(
         
-        p(private$ui_element$get_id()),
+        #p(private$ui_element$get_id()),
         
         textInput(ns("title"), "Titel", private$ui_element$get_title()),
         
@@ -28,7 +22,7 @@ ElementalEditTitle <- R6::R6Class(
       )
     },
     
-    server = function(input, output, session, module_inputs, module_outputs){
+    server = function(input, output, session){
       ns <- session$ns
       
       observe({
@@ -53,8 +47,8 @@ ElementalEditTitle <- R6::R6Class(
   
   public = list(
     
-    initialize = function(id, title, globals, module_inputs, state, ui_element){
-      super$initialize(id, title, globals, module_inputs, state)
+    initialize = function(id, title, globals, ui_element){
+      super$initialize(id, title, globals)
       private$ui_element <- ui_element
       
     }

@@ -4,14 +4,10 @@ Module <- R6::R6Class(
   private = list(
     id = NA_character_,
     
-    default_name = NA_character_,
-    default_page = NA_character_,
     imports = list(),
     exports = list(),
     params = list(),
     
-    group = NA_character_,
-    singleton = FALSE,
     introtour = list(),
     state = list(),
     
@@ -47,11 +43,19 @@ Module <- R6::R6Class(
       if (!is.null(title)){
         private$title <- title
       } else {
-        private$title <- private$default_name
+        private$title <- get_class(class(self)[1])$name
       }
       private$globals <- globals
-      private$module_inputs <- module_inputs
-      private$state = state
+      if (!is.null(module_inputs)){
+        private$module_inputs <- module_inputs
+        browser()
+        # add empty import statements based on private/static info
+      }
+      if (!is.null(module_inputs)){
+        private$state = state
+        browser()
+        # add empty params based on private/static info
+      }
       
     },
     

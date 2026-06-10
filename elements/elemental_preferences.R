@@ -1,19 +1,11 @@
 ElementalPreferences <- R6::R6Class(
   "ElementalPreferences", 
-  inherit = Module,
+  inherit = Element,
   
   private = list(
     
-    default_name = "Voorkeuren",
-    default_page = NA_character_,
-    imports = list(),
-    params = list(),
-    group = NA_character_,
-    singleton = TRUE,
-    
-    module = NULL,
-    exports = list(),
-    
+    title = "Voorkeuren",
+
     # Override this for module-specific UI
     ui = function(){
       
@@ -27,7 +19,7 @@ ElementalPreferences <- R6::R6Class(
       )
     },
     
-    server = function(input, output, session, module_inputs, module_outputs){
+    server = function(input, output, session){
       ns <- session$ns
       
       observe({
@@ -48,8 +40,7 @@ ElementalPreferences <- R6::R6Class(
         serialize(preferences = private$globals$preferences)
         
         private$globals$elements %>% purrr::keep(~"ElementalTile" %in% class(.)) %>% purrr::map(~.$use_menu(private$globals$preferences$tile_menu))
-        
-        #browser()
+
       })
     }
   ),

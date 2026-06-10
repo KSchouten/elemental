@@ -14,7 +14,11 @@ library(bslib)
 source("utils.R")
 source("module.R")
 list.files("modules", full.names = TRUE) %>% purrr::walk(source)
-list.files("ui", full.names = TRUE) %>% purrr::walk(source)
+list.files("elements", full.names = TRUE) %>% purrr::walk(source)
+
+
+
+
 
 theme <- create_theme()
 
@@ -72,6 +76,8 @@ server <- function(input, output, session) {
   #  database connection
   #  currently logged in user
   globals <- reactiveValues()
+  
+  globals$all_modules <- purrr::map(ls(.GlobalEnv), get) %>% purrr::keep(~class(.)=="R6ClassGenerator") %>% purrr::keep(~!is.null(.$inherit) && .$inherit == "Module")
   
   # Open database connection
   
@@ -253,8 +259,8 @@ server <- function(input, output, session) {
     from_tile <- globals$elements[[input$move_module$from_tile]]
     to_tile <- globals$elements[[input$move_module$to_tile]]
     
-    module_id <- from_tile$remove_module(input$move_module$from_index+1)
-    to_tile$add_module(module_id, input$move_module$to_index)
+    module_id <- from_tile$lose_module(input$move_module$from_index+1)
+    to_tile$receive_module(module_id, input$move_module$to_index)
     # no set_parent here because modules don't know in which tile they are
     
     # serialize!
@@ -263,7 +269,7 @@ server <- function(input, output, session) {
   
   # Preferences ----
   observe({
-    preferences <- ElementalPreferences$new(id = "model_preferences", title = "Voorkeuren", globals = globals, module_inputs = list(), state = list())
+    preferences <- ElementalPreferences$new(id = "model_preferences", title = "Voorkeuren", globals = globals)
     preferences$start_server()
     showModal(modalDialog(preferences$get_ui(), footer = NULL))
   }) %>% bindEvent(input$preferences)
@@ -271,7 +277,7 @@ server <- function(input, output, session) {
   # Page title ----
   observe({
     
-    edit_title <- ElementalEditTitle$new(id = stringr::str_c("edit-page-title"), title = "Verander titel", globals = globals, module_inputs = list(), state = list(), ui_element = globals$pages[[input$page]])
+    edit_title <- ElementalEditTitle$new(id = stringr::str_c("edit-page-title"), title = "Verander titel", globals = globals, ui_element = globals$pages[[input$page]])
     edit_title$start_server()
     showModal(modalDialog(edit_title$get_ui(), footer = NULL))
   }) %>% bindEvent(input$change_page_title)

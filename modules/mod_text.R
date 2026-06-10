@@ -4,7 +4,7 @@ Text <- R6::R6Class(
   
   private = list(
     
-    default_name = "text",
+    default_name = "Text",
     default_page = NA_character_,
     imports = list(),
     exports = list(),
@@ -33,3 +33,10 @@ Text <- R6::R6Class(
     
   )
 )
+
+#defaults
+Text$name = "Text"
+Text$page = NA_character_
+Text$group = NA_character_
+Text$singleton = FALSE
+Text$category <- "static"

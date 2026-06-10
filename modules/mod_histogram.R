@@ -4,13 +4,11 @@ Histogram <- R6::R6Class(
   
   private = list(
     
-    default_name = "histogram",
-    default_page = NA_character_,
+
     imports = list("number_bins"),
     exports = list(),
     params = list(),
-    group = NA_character_,
-    singleton = FALSE,
+    
     
     # Override this for module-specific UI
     ui = function(){
@@ -51,3 +49,9 @@ Histogram <- R6::R6Class(
     
   )
 )
+#defaults
+Histogram$name = "Histogram"
+Histogram$page = NA_character_
+Histogram$group = NA_character_
+Histogram$singleton = FALSE
+Histogram$category <- "grafiek"
