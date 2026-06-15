@@ -240,6 +240,14 @@ server <- function(input, output, session) {
         "))
       }
       
+      # store in layout
+      from_tile <- globals$elements[[input$move_module$from_tile]]
+      to_tile <- globals$elements[[input$move_module$to_tile]]
+      
+      module_id <- from_tile$lose_module(input$move_module$from_index+1)
+      to_tile$receive_module(module_id, input$move_module$to_index)
+      # no set_parent here because modules don't know in which tile they are
+      
     } else {
       # we switch only the order between tabs on a single tile
       # only thing needed is to update the order of the tabpanel divs as well so moving them outside the panel later will still work
@@ -255,13 +263,7 @@ server <- function(input, output, session) {
       }
     }
     
-    # store in layout
-    from_tile <- globals$elements[[input$move_module$from_tile]]
-    to_tile <- globals$elements[[input$move_module$to_tile]]
     
-    module_id <- from_tile$lose_module(input$move_module$from_index+1)
-    to_tile$receive_module(module_id, input$move_module$to_index)
-    # no set_parent here because modules don't know in which tile they are
     
     # serialize!
     serialize(pages = globals$pages)

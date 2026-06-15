@@ -60,12 +60,14 @@ ElementalTile <- R6::R6Class(
     lose_module = function(index){
       module_id <- private$modules[[index]] # need 1-index here
       private$modules <- private$modules[-index]
+      self$use_menu()
       return(module_id)
     },
     
     # adding an existing module (dragged from another tile)
     receive_module = function(module_id, index){
       private$modules <- append(private$modules, module_id, index) # can use 0-index here
+      self$use_menu()
     },
     
     # fill in with reactive function
@@ -309,11 +311,13 @@ ElementalTile <- R6::R6Class(
             shinyjs::show(id = stringr::str_c(private$id,"-menu-settings"))
             shinyjs::show(id = stringr::str_c(private$id,"-menu-maximize"))
             shinyjs::show(id = stringr::str_c(private$id,"-menu-remove-module"))
+            shinyjs::show(id = stringr::str_c(private$id,"-menu-info"))
             
             shinyjs::hide(id = stringr::str_c(private$id,"-menu-remove-tile"))
           } else {
             shinyjs::show(id = stringr::str_c(private$id,"-menu-remove-tile"))
             
+            shinyjs::hide(id = stringr::str_c(private$id,"-menu-info"))
             shinyjs::hide(id = stringr::str_c(private$id,"-menu-settings"))
             shinyjs::hide(id = stringr::str_c(private$id,"-menu-maximize"))
             shinyjs::hide(id = stringr::str_c(private$id,"-menu-remove-module"))
@@ -324,7 +328,6 @@ ElementalTile <- R6::R6Class(
           # show the default header buttons
           #shinyjs::runjs(stringr::str_c("$('#", private$id, " > .bslib-nav-item a').show()"))
           
-          shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-info').show()"))
           shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-title').show()"))
           shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-add').show()"))
           
@@ -333,6 +336,7 @@ ElementalTile <- R6::R6Class(
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-settings').show()"))
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-maximize').show()"))
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove-module').show()"))
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-info').show()"))
             
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove-tile').hide()"))
             
@@ -340,7 +344,8 @@ ElementalTile <- R6::R6Class(
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-settings').hide()"))
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-maximize').hide()"))
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove-module').hide()"))
-
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-info').hide()"))
+            
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove-tile').show()"))
             
           }
