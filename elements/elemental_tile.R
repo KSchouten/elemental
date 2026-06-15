@@ -83,12 +83,13 @@ ElementalTile <- R6::R6Class(
           full_screen = TRUE,
           # modules go here later
           
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-info"), label = "", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))), class = "first_button button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-title"), label = "", icon = icon("pen-to-square"))), class = "button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-add"), label = "", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))), class = "button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-maximize"), label = "", icon = icon("up-right-and-down-left-from-center"))), class = "button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-settings"), label = "", icon = icon("cog"))), class = "button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-remove"), label = "", icon = icon("trash-can"))), class = "button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-info"), title="Start info tour", label = "", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))), class = "first_button button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-title"), title="Verander tegel titel", label = "", icon = icon("pen-to-square"))), class = "button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-add"), titel = "Module toevoegen", label = "", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))), class = "button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-maximize"), titel = "Volledig scherm", label = "", icon = icon("up-right-and-down-left-from-center"))), class = "button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-settings"), titel = "Module instellingen", label = "", icon = icon("cog"))), class = "button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-remove-tile"), titel = "Verwijder deze tegel", label = "", icon = icon("trash-can"))), class = "button"),
+          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-remove-module"), titel = "Verwijder deze module", label = "", icon = icon("trash-can"))), class = "button"),
           
           nav_menu("", value = "_menu_", icon = icon("bars"),
                    nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-info"), label = "Start info tour", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))),
@@ -96,7 +97,8 @@ ElementalTile <- R6::R6Class(
                    nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-add"), label = "Module toevoegen", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))),
                    nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-maximize"), label = "Volledig scherm", icon = icon("up-right-and-down-left-from-center")))),
                    nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-settings"), label = "Module instellingen", icon = icon("cog")))),
-                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove"), label = "Verwijder deze tegel", icon = icon("trash-can"))))
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove-tile"), label = "Verwijder deze tegel", icon = icon("trash-can")))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove-module"), label = "Verwijder deze module", icon = icon("trash-can"))))
                    ),        
           
           
@@ -175,12 +177,14 @@ ElementalTile <- R6::R6Class(
       }
       purrr::iwalk(rev(private$modules), insert_module)
 
+      # Action observer: Make full screen
       private$observers$maximize <- observe({
         req(input[[stringr::str_c(private$id,"-menu-maximize")]] + input[[stringr::str_c(private$id,"-header-maximize")]] > 0)
         # we leverage the hidden fullscreen tooltip button (because of fullscreen=TRUE in the navset_card_tab) and just click it programmatically
         shinyjs::runjs(stringr::str_c("$('#", private$id, "').parent().parent().children().eq(2).children().click()"))
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-maximize")]], input[[stringr::str_c(private$id,"-header-maximize")]], ignoreInit = TRUE)
       
+      # Action observer: Change title
       private$observers$title <- observe({
         req(input[[stringr::str_c(private$id,"-menu-title")]] + input[[stringr::str_c(private$id,"-header-title")]] > 0)
         print("update title observer")
@@ -190,6 +194,7 @@ ElementalTile <- R6::R6Class(
         
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-title")]], input[[stringr::str_c(private$id,"-header-title")]], ignoreInit = TRUE)
       
+      # Action observer: Add module
       private$observers$add <- observe({
         req(input[[stringr::str_c(private$id,"-menu-add")]] + input[[stringr::str_c(private$id,"-header-add")]] > 0)
         print("add module observer")
@@ -198,15 +203,17 @@ ElementalTile <- R6::R6Class(
         showModal(modalDialog(add_module$get_ui(), footer = NULL))
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-add")]], input[[stringr::str_c(private$id,"-header-add")]], ignoreInit = TRUE)
       
+      # Action observer: Remove tile
       private$observers$remove <- observe({
-        req(input[[stringr::str_c(private$id,"-menu-remove")]] + input[[stringr::str_c(private$id,"-header-remove")]] > 0)
+        req(input[[stringr::str_c(private$id,"-menu-remove-tile")]] + input[[stringr::str_c(private$id,"-header-remove-tile")]] > 0)
         print("remove tile observer")
         private$parent$remove_tile(private$id)
         shinyjs::runjs(stringr::str_c("$('#", private$id, "').parent().parent().parent().remove()"))
         
         serialize(pages = private$globals$pages)
-      }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-remove")]], input[[stringr::str_c(private$id,"-header-remove")]], ignoreInit = TRUE)
-      
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-remove-tile")]], input[[stringr::str_c(private$id,"-header-remove-tile")]], ignoreInit = TRUE)
+
+        
       show_settings <- function(){
         # show settings
         print(stringr::str_c(private$id,"-menu-settings", "  ", input[[private$id]]))
@@ -215,16 +222,42 @@ ElementalTile <- R6::R6Class(
         private$settings$start_server()
         showModal(modalDialog(private$settings$get_ui(), footer = NULL))
       }
+      # Action observer: Show settings dialog    
       private$observers$settings <- observe({
         req(input[[stringr::str_c(private$id,"-menu-settings")]] + input[[stringr::str_c(private$id,"-header-settings")]] > 0)
         show_settings()
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-settings")]], input[[stringr::str_c(private$id,"-header-settings")]], ignoreInit = TRUE)
       
+      # Action observer: Start info tour
       private$observers$info <- observe({
         req(input[[stringr::str_c(private$id,"-menu-info")]] + input[[stringr::str_c(private$id,"-header-info")]] > 0)
         # start intro tour
         print(stringr::str_c(private$id,"-menu-info", "  ", input[[private$id]]))
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-info")]], input[[stringr::str_c(private$id,"-header-info")]], ignoreInit = TRUE)
+      
+      # Action observer: remove module
+      private$observers$remove_module <- observe({
+        req(input[[stringr::str_c(private$id,"-menu-remove-module")]] + input[[stringr::str_c(private$id,"-header-remove-module")]] > 0)
+        mod_id <- input[[private$id]]
+        mod <- private$globals$modules[[mod_id]]
+        
+        # remove from tile list
+        private$modules[[which(mod_id == private$modules)]] <- NULL
+        # remove from global list
+        private$globals$modules[[mod_id]] <- NULL
+        
+        
+        # remove from UI
+        nav_remove(private$id, mod_id)
+        # kill the object
+        mod$remove()
+        
+        # update menu if tile now contains no modules
+        
+        if (length(private$modules) == 0){
+          self$use_menu(private$globals$preferences$tile_menu)
+        }
+      }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-remove-module")]], input[[stringr::str_c(private$id,"-header-remove-module")]], ignoreInit = TRUE)
       
       # Full screen observer
       private$observers$fullscreen <- observe({
@@ -252,13 +285,15 @@ ElementalTile <- R6::R6Class(
           if (length(private$modules) > 0){
             shinyjs::show(id = stringr::str_c(private$id,"-menu-settings"))
             shinyjs::show(id = stringr::str_c(private$id,"-menu-maximize"))
+            shinyjs::show(id = stringr::str_c(private$id,"-menu-remove-module"))
             
-            shinyjs::hide(id = stringr::str_c(private$id,"-menu-remove"))
+            shinyjs::hide(id = stringr::str_c(private$id,"-menu-remove-tile"))
           } else {
-            shinyjs::show(id = stringr::str_c(private$id,"-menu-remove"))
+            shinyjs::show(id = stringr::str_c(private$id,"-menu-remove-tile"))
             
             shinyjs::hide(id = stringr::str_c(private$id,"-menu-settings"))
             shinyjs::hide(id = stringr::str_c(private$id,"-menu-maximize"))
+            shinyjs::hide(id = stringr::str_c(private$id,"-menu-remove-module"))
           }
         } else {
           # hide the menu
@@ -274,15 +309,16 @@ ElementalTile <- R6::R6Class(
           if (length(private$modules) > 0){
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-settings').show()"))
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-maximize').show()"))
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove-module').show()"))
             
-            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove').hide()"))
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove-tile').hide()"))
             
           } else {
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-settings').hide()"))
             shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-maximize').hide()"))
-            
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove-module').hide()"))
 
-            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove').show()"))
+            shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-remove-tile').show()"))
             
           }
         }
