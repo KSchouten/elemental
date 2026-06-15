@@ -9,8 +9,11 @@ ElementalTile <- R6::R6Class(
     modules = list(),
     parent = NULL,
     globals = NULL,
-    observers = list()
+    observers = list(),
     
+    # if there is a settings dialog open, this will reference it so we can have direct interaction between the tile and the dialog
+    # if there is no settings dialog open, this will be NULL
+    settings = NULL
     
   ),
   
@@ -18,7 +21,7 @@ ElementalTile <- R6::R6Class(
     
     initialize = function(layout, parent, globals){
       # generate id, no ns as we want to be able to move these between pages
-      private$id <- generate_id()
+      private$id <- generate_id("tile")
       
       private$title <- layout$title
       
@@ -47,6 +50,10 @@ ElementalTile <- R6::R6Class(
     
     set_parent = function(column){
       private$parent <- column
+    },
+    
+    close_settings_dialog = function(){
+      private$settings <- NULL
     },
     
     # remove a still existing module (dragged to another tile)
@@ -200,16 +207,17 @@ ElementalTile <- R6::R6Class(
         serialize(pages = private$globals$pages)
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-remove")]], input[[stringr::str_c(private$id,"-header-remove")]], ignoreInit = TRUE)
       
-      private$observers$settings <- observe({
-        req(input[[stringr::str_c(private$id,"-menu-settings")]] + input[[stringr::str_c(private$id,"-header-settings")]] > 0)
+      show_settings <- function(){
         # show settings
         print(stringr::str_c(private$id,"-menu-settings", "  ", input[[private$id]]))
         
-        settings <- ElementalModuleSettings$new(id = stringr::str_c(private$id,"-settings"), title = "Instellingen", globals = private$globals, module = private$globals$modules[[input[[private$id]]]])
-        settings$start_server()
-        showModal(modalDialog(settings$get_ui(), footer = NULL))
-        
-        
+        private$settings <- ElementalModuleSettings$new(id = stringr::str_c(private$id,"-settings"), title = "Instellingen", globals = private$globals, tile = self, module = private$globals$modules[[input[[private$id]]]])
+        private$settings$start_server()
+        showModal(modalDialog(private$settings$get_ui(), footer = NULL))
+      }
+      private$observers$settings <- observe({
+        req(input[[stringr::str_c(private$id,"-menu-settings")]] + input[[stringr::str_c(private$id,"-header-settings")]] > 0)
+        show_settings()
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-settings")]], input[[stringr::str_c(private$id,"-header-settings")]], ignoreInit = TRUE)
       
       private$observers$info <- observe({
@@ -218,11 +226,18 @@ ElementalTile <- R6::R6Class(
         print(stringr::str_c(private$id,"-menu-info", "  ", input[[private$id]]))
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-info")]], input[[stringr::str_c(private$id,"-header-info")]], ignoreInit = TRUE)
       
-      observe({
+      # Full screen observer
+      private$observers$fullscreen <- observe({
         print(stringr::str_c("Full screen: ",input[[stringr::str_c(private$id, "_full_screen")]]))
         private$globals$modules[[input[[private$id]]]]$set_fullscreen(input[[stringr::str_c(private$id, "_full_screen")]])
       }) %>% bindEvent(input[[stringr::str_c(private$id, "_full_screen")]], ignoreInit = TRUE)
       
+      # Tab observer
+      private$observers$select_tab <- observe({
+        if (!is.null(private$settings)){
+          private$settings$update_module_selection(private$globals$modules[[input[[private$id]]]])
+        }
+      }) %>% bindEvent(input[[private$id]])
       
       # toggle between having the tile actions in a menu or as separate icons in the tile header
       self$use_menu = function(tile_menu = TRUE){
@@ -275,14 +290,19 @@ ElementalTile <- R6::R6Class(
       self$use_menu(private$globals$preferences$tile_menu)
       
       # add a new module
-      self$add_module = function(classname){
-        id = generate_id()
-        mod = get_class(classname)
-        new_module <- mod$new(id, mod$name, private$globals, module_inputs = NULL, state = NULL)
-        private$globals$modules[[id]] <- new_module
-        private$modules <- append(private$modules, id, after = 0)
-        # reuse code to add the modules at startup
-        insert_module(id, length(private$modules))
+      self$add_module = function(module){
+        # add module id to list of modules in this tile
+        private$modules <- append(private$modules, module$get_id(), after = 0)
+        # reuse code to add the modules at startup: insert module in the UI
+        insert_module(module$get_id(), length(private$modules))
+        # trigger the settings menu if this module has inputs to set
+        if (length(module$get_inputs) > 0){
+          show_settings()
+        }
+        if (length(private$modules) == 1){
+          # tile was empty before, update tile menu to reflect this
+          self$use_menu(private$globals$preferences$tile_menu)
+        }
       }
       
       # remove a module from tile (and dashboard)

@@ -282,6 +282,19 @@ server <- function(input, output, session) {
     showModal(modalDialog(edit_title$get_ui(), footer = NULL))
   }) %>% bindEvent(input$change_page_title)
   
+  # Add module ---
+  # This needs to be done from the main session, otherwise it will be a child-module of the modal dialog module, which will mess with the namespace and hence the reactiveness
+  observe({
+    id = generate_id("mod")
+    mod_class = get_class(input$add_module$module)
+    mod <- mod_class$new(id, mod_class$name, globals, module_inputs = NULL, state = NULL)
+    #mod$start_server() # this is done inside the tile for now
+    globals$modules[[id]] <- mod
+    globals$elements[[input$add_module$tile]]$add_module(mod)
+    serialize(modules = globals$modules, pages = globals$pages, state = globals$state)
+    
+  }) %>% bindEvent(input$add_module)
+  
   # Select first page
   shinydashboard::updateTabItems(inputId = "page", selected = isolate(globals$pages[[1]]$get_id()))
   waiter::waiter_hide()

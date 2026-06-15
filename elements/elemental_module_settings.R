@@ -5,6 +5,7 @@ ElementalModuleSettings <- R6::R6Class(
   private = list(
     
     title = "Module instellingen",
+    tile = NULL,
     module = NULL,
     all_available_exports = list(),
     
@@ -12,84 +13,105 @@ ElementalModuleSettings <- R6::R6Class(
     ui = function(){
       
       ns <- NS(private$id)
-      div(
-        h1(private$default_name),
-        p(private$module$get_id()),
-        
-        textInput(ns("title"), "Titel", private$module$get_title()),
-        
-        h4("Parameters"),
-        !!!purrr::map(private$module$get_params(), function(name){
-          textInput(ns(stringr::str_c("param-", name)), name, private$module$get_param(name))
-        }),
-        h4("Afhankelijkheden"),
-        !!!purrr::map(private$module$get_inputs(), function(name){
-          
-          selectInput(ns(stringr::str_c("input-", name)), name, private$all_available_exports, selected = stringr::str_c(private$module$get_input(name), collapse = " "))
-        }),
-        actionButton(ns("done"), "Gereed")
-      )
+      uiOutput(ns("modal_ui"))
     },
     
     server = function(input, output, session){
       ns <- session$ns
 
+      output$modal_ui <- renderUI({
+        tagList(
+          h1(private$title),
+          p(private$module()$get_id()),
+          
+          textInput(ns("title"), "Titel", private$module()$get_title()),
+          
+          h4("Parameters"),
+          !!!purrr::map(private$module()$get_params(), function(name){
+            textInput(ns(stringr::str_c("param-", name)), name, private$module()$get_param(name))
+          }),
+          h4("Afhankelijkheden"),
+          !!!purrr::map(private$module()$get_inputs(), function(name){
+            print(stringr::str_c(private$module()$get_input(name), collapse = " "))
+            selectInput(ns(stringr::str_c("input-", name)), name, private$all_available_exports, selected = stringr::str_c(private$module()$get_input(name), collapse = " "))
+          }),
+          actionButton(ns("done"), "Gereed")
+        )
+      })
+      
       observe({
         self$remove()
         removeModal()
+        private$tile$close_settings_dialog()
       }) %>% bindEvent(input$done)
 
       observe({
         print(input$title)
         # update title
-        private$module$set_title(input$title)
+        private$module()$set_title(input$title)
        
-        shinyjs::runjs(stringr::str_c("$('a[data-value=", private$module$get_id(),"]').text('", input$title, "')"))
+        shinyjs::runjs(stringr::str_c("$('a[data-value=", private$module()$get_id(),"]').text('", input$title, "')"))
         
         serialize(modules = private$globals$modules)
       }) %>% bindEvent(input[["title"]], ignoreInit = TRUE)
       
-      purrr::walk(private$module$get_params(), function(name){
-        observe({
-          quote({
-            value <- input[[stringr::str_c("param-", name)]]
-            req(value)
-            
-            # update param
-            private$module$set_param(name, value)
+      reactive_observers <- list()
+      observe({
+        reactive_observers %>% purrr::walk(~.$destroy())
+        reactive_observers <- c(
+          purrr::map(private$module()$get_params(), function(name){
+            observe({
+              quote({
+                value <- input[[stringr::str_c("param-", name)]]
+                req(value)
+                
+                # update param
+                private$module()$set_param(name, value)
+              })
+            }, quoted = TRUE) %>% bindEvent(input[[stringr::str_c("param-", name)]], ignoreInit = TRUE)
+          }),
+              
+          purrr::map(private$module()$get_inputs(), function(name){
+            observe({
+              quote({
+                
+                value <- input[[stringr::str_c("input-", name)]]
+                req(value)
+                print(value)
+                # update input dependency
+                private$module()$set_input(name, stringr::str_split_1(value, " "))
+              })
+            }, quoted = TRUE) %>% bindEvent(input[[stringr::str_c("input-", name)]], ignoreInit = TRUE)
           })
-        }, quoted = TRUE) %>% bindEvent(input[[stringr::str_c("param-", name)]], ignoreInit = TRUE)
-      })
-            
-      purrr::walk(private$module$get_inputs(), function(name){
-        observe({
-          quote({
-            value <- input[[stringr::str_c("input-", name)]]
-            req(value)
-            print(value)
-            # update input dependency
-            private$module$set_input(name, stringr::str_split_1(value, " "))
-          })
-        }, quoted = TRUE) %>% bindEvent(input[[stringr::str_c("input-", name)]], ignoreInit = TRUE)
-      })
+        )
+      }) %>% bindEvent(private$module())
       
-      # purrr::map(private$module$get_inputs(), function(name){
-      #   id <- stringr::str_c(private$id, "-", name)
-      #   updateSelectInput(inputId = id, choices = all_available_exports, selected = input[[id]])
-      # })
+      self$update_module_selection <- function(module){
+        private$module(module)
+      }
     }
   ),
   
   public = list(
     
-    initialize = function(id, title, globals, module){
+    initialize = function(id, title, globals, tile, module){
       super$initialize(id, title, globals)
-      private$module <- module
+      private$tile <- tile
+      private$module <- reactiveVal(NULL)
+      # When creating a new module, the settings dialog is called before the new module is properly initialized.
+      # It is possible that at the moment of creation, the module does not exist yet and would give an error which is why a try({}) is necessary here
+      try({
+        private$module <- reactiveVal(module)
+      })
       
-      private$all_available_exports <- purrr::map(private$globals$modules, function(m){
+      private$all_available_exports <- append(list("Kies waarde uit andere module" = ""), purrr::map(private$globals$modules, function(m){
         stringr::str_c(m$get_id(), " ", m$get_outputs()) %>% setNames(stringr::str_c(m$get_title(), " -> ", m$get_outputs()))
-      }) %>% purrr::flatten()
-    }
+      }) %>% purrr::flatten())
+    },
+    
+    update_module_selection = NULL # fill in with reactive function
+    
+    
     
   )
 )

@@ -48,13 +48,13 @@ Module <- R6::R6Class(
       private$globals <- globals
       if (!is.null(module_inputs)){
         private$module_inputs <- module_inputs
-        browser()
+      } else {
         # add empty import statements based on private/static info
+        private$module_inputs <- purrr::map(private$imports, ~c()) %>% setNames(private$imports)
       }
       if (!is.null(module_inputs)){
         private$state = state
-        browser()
-        # add empty params based on private/static info
+        # add empty params based on private/static info?
       }
       
     },
@@ -157,15 +157,12 @@ Module <- R6::R6Class(
                 print(stringr::str_c("[", session$ns(""), "] execute observer for: ", stringr::str_c(input_path, collapse = ", ")))
                 # Old requirement, this should now always be true: "Module" %in% class(private$globals$modules[[input_path[1]]])
                 
-                # register this dependency with the module that exports so it knows which modules depend on its output
-                # when a non-active module is activated it can trigger its dependent modules to re-register their inputs
-                
-                if (private$globals$modules[[input_path[1]]]$is_active()){
+                if (length(input_path)==2 && input_path[1] %in% names(private$globals$modules) && private$globals$modules[[input_path[1]]]$is_active()){
                   # this page has been loaded and its modules have been initialized so they can be referred to
                   module_inputs[[varname]] <- private$globals$modules[[input_path[1]]]$get_output(input_path[2])
                   print(stringr::str_c("New value: ", module_inputs[[varname]]))
                 } else {
-                  # this page has not been loaded so we cannot yet refer to its modules and their exported variables
+                  # this module is newly added so no dependencies are defined yet
                   module_inputs[[varname]] <- NULL
                   print("New value: NULL")
                   
@@ -202,12 +199,13 @@ Module <- R6::R6Class(
           # 
           
           self$set_input <- function(input_var, input_path){
-            if (all(private$module_inputs[[input_var]] == input_path)){
+            
+            if (!is.null(private$module_inputs[[input_var]]) && all(private$module_inputs[[input_var]] == input_path)){
               return(NULL)
             } else {
               private$module_inputs[[input_var]] <- input_path
               
-              if ("Module" %in% class(private$globals$modules[[input_path[1]]])){
+              if (private$globals$modules[[input_path[1]]]$is_active()){
                 # this page has been loaded and its modules have been initialized so they can be referred to
                 module_inputs[[input_var]] <- private$globals$modules[[input_path[1]]]$get_output(input_path[2])
                 print(stringr::str_c("New value: ", module_inputs[[input_var]]))

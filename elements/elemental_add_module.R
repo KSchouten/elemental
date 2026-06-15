@@ -35,8 +35,9 @@ ElementalAddModule <- R6::R6Class(
       
       # ok, add the module and remove the modal
       observe({
-  
-        private$tile$add_module(input$module)
+        print(stringr::str_c("Shiny.setInputValue('add_module', {'module': '", input$module, "', 'tile': '",private$tile$get_id(),"'})"))
+        shinyjs::runjs(stringr::str_c("Shiny.setInputValue('add_module', {'module': '", input$module, "', 'tile': '",private$tile$get_id(),"'})"))
+        #private$tile$add_module(input$module)
 
         self$remove()
         removeModal()
