@@ -4,14 +4,10 @@ Text <- R6::R6Class(
   
   private = list(
     
-    default_name = "Text",
-    default_page = NA_character_,
     imports = list(),
     exports = list(),
     params = list(),
-    group = NA_character_,
-    singleton = FALSE,
-    
+
     # Override this for module-specific UI
     ui = function(){
       ns <- NS(private$id)

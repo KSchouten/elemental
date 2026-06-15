@@ -8,7 +8,6 @@ Module <- R6::R6Class(
     exports = list(),
     params = list(),
     
-    introtour = list(),
     state = list(),
     
     title = NA_character_,
@@ -86,10 +85,11 @@ Module <- R6::R6Class(
     get_output = function(output_var){
       return(private$module_outputs[[output_var]])
     },
-    get_introtour = function(){
-      return(private$introtour)
+    get_intro_tour = function(){
+       return(list(list(title = "Helaas!", intro = "Voor deze module is (nog) geen intro tour beschikbaar.")))
     },
 
+    
     serialize = function(){
       list(class = class(self)[1], title = private$title, imports = private$module_inputs, params = as.list(private$params))
     },
@@ -128,7 +128,7 @@ Module <- R6::R6Class(
     set_input = NULL, 
     set_param = NULL,
     remove = NULL, 
-    
+
     start_server = function(){
       if (!private$active){
         private$active <- TRUE
@@ -227,7 +227,7 @@ Module <- R6::R6Class(
               
             }
           }
-          
+
           # Clean up and remove this module
           self$remove <- function(){
             purrr::walk(module_inputs_observers, ~.$destroy())

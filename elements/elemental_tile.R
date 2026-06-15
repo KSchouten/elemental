@@ -233,6 +233,29 @@ ElementalTile <- R6::R6Class(
         req(input[[stringr::str_c(private$id,"-menu-info")]] + input[[stringr::str_c(private$id,"-header-info")]] > 0)
         # start intro tour
         print(stringr::str_c(private$id,"-menu-info", "  ", input[[private$id]]))
+        mod <- private$globals$modules[[input[[private$id]]]]
+        tour <- mod$get_intro_tour()
+        if (!is.null(tour) && length(tour) > 0){
+          rintrojs::introjs(
+            session,
+            options = list(
+              steps = tour,
+              showBullets = FALSE,
+              showProgress = TRUE,
+              nextLabel = "Volgende",
+              prevLabel = "Vorige",
+              doneLabel = "Sluiten",
+              # tooltipClass is needed here to override the default styling that hides .introjs-tooltipReferenceLayer.
+              # The tooltipReferenceLayer is hidden because of the switch_tab steps but those are not used here.
+              tooltipClass = "page-settings-tour",
+              positionPrecedence = c("right", "left", "bottom", "top"),
+              scrollToElement = TRUE,
+              scrollTo = "tooltip"
+            ),
+            events = list()
+          )
+        }
+        
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-info")]], input[[stringr::str_c(private$id,"-header-info")]], ignoreInit = TRUE)
       
       # Action observer: remove module

@@ -45,7 +45,13 @@ Histogram <- R6::R6Class(
   
   public = list(
     
-    
+    get_intro_tour = function(){
+      ns <- NS(private$id)
+      ns_id <- function(x){stringr::str_c("#", ns(x))}
+
+      list(list(element = ns_id("distPlot"), title = "Grafiek", intro = "Dit is een grafiek, yeah!"),
+           list(element = ns_id("nrbins"), title = "Grafiek", intro = "Dit is een getal"))
+    }
     
   )
 )
