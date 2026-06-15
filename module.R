@@ -91,7 +91,7 @@ Module <- R6::R6Class(
 
     
     serialize = function(){
-      list(class = class(self)[1], title = private$title, imports = private$module_inputs, params = as.list(private$params))
+      list(class = class(self)[1], title = private$title, imports = isolate(reactiveValuesToList(private$module_inputs)), params = as.list(private$params))
     },
     
     get_state = function(){
@@ -134,6 +134,8 @@ Module <- R6::R6Class(
         private$active <- TRUE
         private$fullscreen <- reactiveVal(FALSE)
         
+        private$module_inputs <- reactiveValues(!!!private$module_inputs)
+        
         # Override the observe function so we can automatically keep them in a list so we can properly destroy them when the module is removed
         observers <- list()
         observe <- function(x, env = parent.frame(), ...){
@@ -170,7 +172,7 @@ Module <- R6::R6Class(
                 
               })
             }, quoted = TRUE)            
-          })
+          }) %>% setNames(names(private$module_inputs))
           
           private$params <- reactiveValues(!!!private$params)
           
@@ -205,15 +207,6 @@ Module <- R6::R6Class(
             } else {
               private$module_inputs[[input_var]] <- input_path
               
-              if (private$globals$modules[[input_path[1]]]$is_active()){
-                # this page has been loaded and its modules have been initialized so they can be referred to
-                module_inputs[[input_var]] <- private$globals$modules[[input_path[1]]]$get_output(input_path[2])
-                print(stringr::str_c("New value: ", module_inputs[[input_var]]))
-              } else {
-                # this page has not been loaded so we cannot yet refer to its modules and their exported variables
-                module_inputs[[input_var]] <- NULL
-                print("New value: NULL")
-              }
               serialize(modules = private$globals$modules)
             }
           }
