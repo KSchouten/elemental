@@ -11,7 +11,7 @@ ElementalPreferences <- R6::R6Class(
       
       ns <- NS(private$id)
       div(
-        h1(private$default_name),
+        h1(private$title),
 
         selectInput(ns("theme"), "Thema", c("shiny", bslib::bootswatch_themes()), private$globals$preferences$theme), 
         selectInput(ns("tile_menu"), "Tegel acties", c("Samen in menu" = TRUE, "Los in titelbalk" = FALSE), selected = private$globals$preferences$tile_menu),

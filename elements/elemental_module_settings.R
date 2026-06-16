@@ -25,16 +25,23 @@ ElementalModuleSettings <- R6::R6Class(
           p(private$module()$get_id()),
           
           textInput(ns("title"), "Titel", private$module()$get_title()),
-          
-          h4("Parameters"),
-          !!!purrr::map(private$module()$get_params(), function(name){
-            textInput(ns(stringr::str_c("param-", name)), name, private$module()$get_param(name))
-          }),
-          h4("Afhankelijkheden"),
-          !!!purrr::map(private$module()$get_inputs(), function(name){
-            print(stringr::str_c(private$module()$get_input(name), collapse = " "))
-            selectInput(ns(stringr::str_c("input-", name)), name, private$all_available_exports, selected = stringr::str_c(private$module()$get_input(name), collapse = " "))
-          }),
+          if(length(private$module()$get_params())>0){
+            tagList(
+              h4("Parameters"),
+              !!!purrr::map(private$module()$get_params(), function(name){
+                textInput(ns(stringr::str_c("param-", name)), name, private$module()$get_param(name))
+              })
+            )
+          },
+          if(length(private$module()$get_inputs())>0){
+            tagList(
+              h4("Afhankelijkheden"),
+              !!!purrr::map(private$module()$get_inputs(), function(name){
+                print(stringr::str_c(private$module()$get_input(name), collapse = " "))
+                selectInput(ns(stringr::str_c("input-", name)), name, private$all_available_exports, selected = stringr::str_c(private$module()$get_input(name), collapse = " "))
+              })
+            )
+          },
           actionButton(ns("done"), "Gereed")
         )
       })

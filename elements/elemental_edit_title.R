@@ -13,7 +13,7 @@ ElementalEditTitle <- R6::R6Class(
       
       ns <- NS(private$id)
       div(
-        
+        h1(private$title),
         #p(private$ui_element$get_id()),
         
         textInput(ns("title"), "Titel", private$ui_element$get_title()),
