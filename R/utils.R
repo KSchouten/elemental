@@ -50,6 +50,13 @@ serialize <- function(modules = NULL, pages = NULL, state = NULL, preferences = 
   }
 }
 
+#' Create a theme for the Shiny app
+#' 
+#' Customizes a couple of bootstrap properties
+#'
+#' @param theme Name of a preset theme (ses bslib::bootswatch_themes())
+#'
+#' @returns A theme object that can be used by bslib
 create_theme <- function(theme = "shiny"){
   bslib::bs_theme(preset = theme) %>%
     bslib::bs_add_variables(
@@ -64,6 +71,10 @@ create_theme <- function(theme = "shiny"){
         xxl: 1400px)", # 0, 576, 768, 992, 1200, 1400
       .where = "declarations"
     ) 
+}
+
+app_sys <- function(...) {
+  system.file(..., package = "elemental")
 }
 
 
