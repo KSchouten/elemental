@@ -192,8 +192,8 @@ ElementalTile <- R6::R6Class(
         print("update title observer")
         edit_title <- ElementalEditTitle$new(id = stringr::str_c(private$id,"-title"), title = "Verander titel", globals = private$globals, ui_element = self)
         edit_title$start_server()
-        showModal(modalDialog(edit_title$get_ui(), footer = NULL))
-        
+        showModal(modalDialog(edit_title$get_ui(), footer = NULL, easyClose = TRUE))
+        private$globals$modal <- edit_title
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-title")]], input[[stringr::str_c(private$id,"-header-title")]], ignoreInit = TRUE)
       
       # Action observer: Add module
@@ -202,7 +202,8 @@ ElementalTile <- R6::R6Class(
         print("add module observer")
         add_module <- ElementalAddModule$new(id = stringr::str_c(private$id,"-title"), title = "Module toevoegen", globals = private$globals, tile = self)
         add_module$start_server()
-        showModal(modalDialog(add_module$get_ui(), footer = NULL))
+        showModal(modalDialog(add_module$get_ui(), footer = NULL, easyClose = TRUE))
+        private$globals$modal <- add_module
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-add")]], input[[stringr::str_c(private$id,"-header-add")]], ignoreInit = TRUE)
       
       # Action observer: Remove tile
@@ -222,7 +223,8 @@ ElementalTile <- R6::R6Class(
         
         private$settings <- ElementalModuleSettings$new(id = stringr::str_c(private$id,"-settings"), title = "Instellingen", globals = private$globals, tile = self, module = private$globals$modules[[input[[private$id]]]])
         private$settings$start_server()
-        showModal(modalDialog(private$settings$get_ui(), footer = NULL))
+        showModal(modalDialog(private$settings$get_ui(), footer = NULL, easyClose = TRUE))
+        private$globals$modal <- private$settings
       }
       # Action observer: Show settings dialog    
       private$observers$settings <- observe({

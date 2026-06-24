@@ -13,13 +13,16 @@ Text <- R6::R6Class(
       ns <- NS(private$id)
       div(
         h1(private$default_name),
-        p("Here is some text...")
+        verbatimTextOutput(ns("text"))
       )
     },
     
     server = function(input, output, session, module_inputs, module_outputs){
       ns <- session$ns
       
+      output$text <- renderPrint({
+        print(.subset2(input, "impl")$.values)
+      })
     }
   ),
   

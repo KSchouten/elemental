@@ -46,6 +46,7 @@ App <- R6::R6Class(
             nav_item(actionLink(inputId = "change_page_title", label = "Verander pagina titel", icon = icon("pen-to-square"))),
             nav_item(actionLink(inputId = "print_page", label = "Print pagina", icon = icon("print"))),
             nav_item(actionLink(inputId = "preferences", label = "Voorkeuren", icon = icon("sliders"))),
+            nav_item(actionLink(inputId = "shortcuts", label = HTML("Sneltoetsen <kbd>?</kbd>"), icon =icon("keyboard"))),
             nav_item(tags$a(shiny::icon("github"), "Elemental @ GitHub", href = "https://github.com/KSchouten/elemental", target = "_blank")),
             
           )
@@ -266,18 +267,39 @@ App <- R6::R6Class(
       
       # Preferences ----
       observe({
-        preferences <- ElementalPreferences$new(id = "model_preferences", title = "Voorkeuren", globals = private$globals)
+        req(is.null(private$globals$modal))
+        preferences <- ElementalPreferences$new(id = "app_preferences", title = "Voorkeuren", globals = private$globals)
         preferences$start_server()
-        showModal(modalDialog(preferences$get_ui(), footer = NULL))
+        showModal(modalDialog(preferences$get_ui(), footer = NULL, easyClose = TRUE))
+        private$globals$modal <- preferences
       }) %>% bindEvent(input$preferences)
       
+      # Keyboard shortcuts ----
+      observe({
+        req(is.null(private$globals$modal))
+        shortcuts <- ElementalShortcuts$new(id = "shortcuts", title = "Sneltoetsen", globals = private$globals)
+        shortcuts$start_server()
+        showModal(modalDialog(shortcuts$get_ui(), footer = NULL, easyClose = TRUE))
+        private$globals$modal <- shortcuts
+      }) %>% bindEvent(input$shortcuts, input$key_questionmark, ignoreInit = TRUE)
+
       # Page title ----
       observe({
-        
+        req(is.null(private$globals$modal))
         edit_title <- ElementalEditTitle$new(id = stringr::str_c("edit-page-title"), title = "Verander titel", globals = private$globals, ui_element = private$globals$pages[[input$page]])
         edit_title$start_server()
-        showModal(modalDialog(edit_title$get_ui(), footer = NULL))
+        showModal(modalDialog(edit_title$get_ui(), footer = NULL, easyClose = TRUE))
+        private$globals$modal <- edit_title
       }) %>% bindEvent(input$change_page_title)
+      
+      # Modal flag
+      observe({
+        req(isFALSE(input$modal))
+        if (!is.null(private$globals$modal) && "Element" %in% class(private$globals$modal)){
+          private$globals$modal$remove()
+          private$globals$modal <- NULL
+        }
+      }) %>% bindEvent(input$modal, ignoreInit =TRUE)
       
       # Add module ---
       # This needs to be done from the main session, otherwise it will be a child-module of the modal dialog module, which will mess with the namespace and hence the reactiveness
