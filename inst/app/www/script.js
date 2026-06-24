@@ -26,10 +26,16 @@ function logKey(e){
     console.log("Light it up!")
     $('.layout-column').toggleClass('layout-visible')
     //$('.layout').toggleClass('layout-invisible')
-    
   }
+  if (e.key === '?'){
+    Shiny.setInputValue("key_questionmark", e, {'priority': 'event'})
+  }
+  
 
 }
+
+document.addEventListener("hide.bs.modal", function(){Shiny.setInputValue("modal", false)})
+document.addEventListener("show.bs.modal", function(){Shiny.setInputValue("modal", true)})
 
 document.addEventListener("bslib.card", communicateFullScreenState)
 
