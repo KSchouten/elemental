@@ -25,4 +25,8 @@ devtools::load_all()
 
 app = App$new(modules, config)
 
-runApp(app$run(), launch.browser = TRUE)
+if(interactive()){
+  runApp(app$run(), launch.browser = TRUE)
+} else {
+  app$run()
+}
