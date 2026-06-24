@@ -3,72 +3,68 @@
 \name{App}
 \alias{App}
 \title{The main App class that encapsulates the Shiny app}
+\value{
+An App object
+
+A Shiny app object that can be run with shiny::runApp()
+}
 \description{
+The main App class that encapsulates the Shiny app
+
 The main App class that encapsulates the Shiny app
 }
 \section{Methods}{
 \subsection{Public methods}{
-  \itemize{
-    \item \href{#method-App-initialize}{\code{App$new()}}
-    \item \href{#method-App-run}{\code{App$run()}}
-    \item \href{#method-App-clone}{\code{App$clone()}}
-  }
+\itemize{
+\item \href{#method-App-new}{\code{App$new()}}
+\item \href{#method-App-run}{\code{App$run()}}
+\item \href{#method-App-clone}{\code{App$clone()}}
+}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-App-initialize"></a>}}
-\if{latex}{\out{\hypertarget{method-App-initialize}{}}}
-\subsection{\code{App$new()}}{
-  Initialize an App
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{App$new(modules, config)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{modules}}{A list of R6Generators, result of sourcing files}
-      \item{\code{config}}{A list, usually from reading json, that contains the specification of the dashboard}
-    }
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    An App object
-Create a Shiny app
-  }
+\if{html}{\out{<a id="method-App-new"></a>}}
+\if{latex}{\out{\hypertarget{method-App-new}{}}}
+\subsection{Method \code{new()}}{
+Initialize an App
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{App$new(modules, config)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{modules}}{A list of R6Generators, result of sourcing files}
+
+\item{\code{config}}{A list, usually from reading json, that contains the specification of the dashboard}
+}
+\if{html}{\out{</div>}}
+}
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-App-run"></a>}}
 \if{latex}{\out{\hypertarget{method-App-run}{}}}
-\subsection{\code{App$run()}}{
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{App$run()}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Returns}{
-    A Shiny app object that can be run with shiny::runApp()
-  }
+\subsection{Method \code{run()}}{
+Create a Shiny app that can be run
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{App$run()}\if{html}{\out{</div>}}
 }
 
+}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-App-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-App-clone}{}}}
-\subsection{\code{App$clone()}}{
-  The objects of this class are cloneable with this method.
-  \subsection{Usage}{
-    \if{html}{\out{<div class="r">}}
-    \preformatted{App$clone(deep = FALSE)}
-    \if{html}{\out{</div>}}
-  }
-  \subsection{Arguments}{
-    \if{html}{\out{<div class="arguments">}}
-    \describe{
-      \item{\code{deep}}{Whether to make a deep clone.}
-    }
-    \if{html}{\out{</div>}}
-  }
+\subsection{Method \code{clone()}}{
+The objects of this class are cloneable with this method.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{App$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{deep}}{Whether to make a deep clone.}
+}
+\if{html}{\out{</div>}}
+}
+}
 }

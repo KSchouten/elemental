@@ -9,7 +9,7 @@
 #install.packages(c("sortable"))
 
 #library(shiny)
-#library(dplyr)
+library(dplyr)
 #library(bslib)
 #source("utils.R")
 #source("module.R")

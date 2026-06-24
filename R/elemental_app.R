@@ -315,7 +315,8 @@ App <- R6::R6Class(
       private$config <- config
     },
     
-    #' Create a Shiny app
+    #' @description
+    #' Create a Shiny app that can be run
     #'
     #' @returns A Shiny app object that can be run with shiny::runApp()
     run = function(){

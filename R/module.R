@@ -33,8 +33,12 @@ Module <- R6::R6Class(
           h1("Test module")
         )
       })
-    }
+    },
     
+    # placeholders for reactive functions
+    reactive_set_input = NULL,
+    reactive_set_param = NULL,
+    reactive_remove = NULL
     
   ),
   
@@ -245,7 +249,7 @@ Module <- R6::R6Class(
     #' Always consists of a 2-long character vector with a module id and output variable name.
     #'
     #' This method is defined within the server function so it operates in a reactive context.
-    set_input = function(input_var, input_path){}, 
+    set_input = function(input_var, input_path){private$reactive_set_input(input_var, input_path)}, 
     #' @description
     #' Reactively change the value of a parameter
     #'
@@ -253,13 +257,13 @@ Module <- R6::R6Class(
     #' @param param_value  The new value of this parameter
     #'
     #' This method is defined within the server function so it operates in a reactive context.
-    set_param = function(param_name, param_value){},
+    set_param = function(param_name, param_value){private$reactive_set_param(param_name, param_value)},
     
     #' @description
     #' Remove this module
     #'
     #' Tries to remove all content, observers etc. to prevent memory leakage.
-    remove = function(){}, 
+    remove = function(){private$reactive_remove()}, 
     
     #' @description
     #' Start the server function of this module
@@ -336,7 +340,7 @@ Module <- R6::R6Class(
           # }
           # 
           
-          self$set_input <- function(input_var, input_path){
+          private$reactive_set_input <- function(input_var, input_path){
             
             if (!is.null(private$module_inputs[[input_var]]) && all(private$module_inputs[[input_var]] == input_path)){
               return(NULL)
@@ -347,7 +351,7 @@ Module <- R6::R6Class(
             }
           }
           
-          self$set_param <- function(param_name, param_value){
+          private$reactive_set_param <- function(param_name, param_value){
             if (private$params[[param_name]] == param_value){
               return(NULL)
             } else {
@@ -358,7 +362,7 @@ Module <- R6::R6Class(
           }
           
           # Clean up and remove this module
-          self$remove <- function(){
+          private$reactive_remove <- function(){
             purrr::walk(module_inputs_observers, ~.$destroy())
             module_inputs_observers <<- NULL
             module_inputs <<- NULL
