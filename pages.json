@@ -10,7 +10,8 @@
     },
     "id_mod3": {
       "title": "another slider",
-      "class": "Slider"
+      "class": "Slider",
+      "params": {"min": 10, "max": 80}
     },
     "id_mod4": {
       "title": "another histogram",
@@ -20,6 +21,10 @@
     "id_mod5": {
       "title": "filler",
       "class": "Text"
+    },
+    "id_mod6": {
+      "title": "Terminal",
+      "class": "Terminal"
     }
   },
   "pages": [
@@ -30,6 +35,7 @@
           {"class": "ElementalTile", "title":"Control", "modules": []}
         ]},
         {"class": "ElementalColumn", "tiles": [
+          {"class": "ElementalTile", "title": "Terminal", "modules": ["id_mod6"]},
           {"class": "ElementalTile", "title": "Results", "modules": ["id_mod2"]}
         ]}
       ]},

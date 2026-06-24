@@ -87,7 +87,7 @@ App <- R6::R6Class(
       private$globals$preferences <- private$config$preferences
       
       private$globals$modules <- purrr::imap(private$config$modules, function(module, id){
-        get_class(module$class)$new(id, module$title, private$globals, purrr::map(module$imports, unlist), private$config$state[[id]])
+        get_class(module$class)$new(id, module$title, private$globals, purrr::map(module$imports, unlist), module$params, private$config$state[[id]])
       })  
       
       private$globals$elements <- list()
@@ -306,7 +306,7 @@ App <- R6::R6Class(
       observe({
         id = generate_id("mod")
         mod_class = get_class(input$add_module$module)
-        mod <- mod_class$new(id, mod_class$name, private$globals, module_inputs = NULL, state = NULL)
+        mod <- mod_class$new(id, mod_class$name, private$globals, module_inputs = NULL, params = NULL, state = NULL)
         #mod$start_server() # this is done inside the tile for now
         private$globals$modules[[id]] <- mod
         private$globals$elements[[input$add_module$tile]]$add_module(mod)

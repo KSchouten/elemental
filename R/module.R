@@ -55,9 +55,10 @@ Module <- R6::R6Class(
     #' @param globals A reference to a set of global, reactive, variables. Don't use these directly in your own modules
     #' @param module_inputs A names list of character vectors that map output variables of other modules to input variables for this module
     #' @param state A list of variables that describe the current state of the module. Don't put datasets in here, just simple variables.
+    #' @param params A list of static parameters that modify a module without depending on other modules and not being the state.
     #'
     #' @returns A Module object
-    initialize = function(id, title, globals, module_inputs, state){
+    initialize = function(id, title, globals, module_inputs, params, state){
       private$id <- id
       if (!is.null(title)){
         private$title <- title
@@ -71,7 +72,11 @@ Module <- R6::R6Class(
         # add empty import statements based on private/static info
         private$module_inputs <- purrr::map(private$imports, ~c()) %>% setNames(private$imports)
       }
-      if (!is.null(module_inputs)){
+      if (!is.null(params)){
+        private$params = params
+        # add empty params based on private/static info?
+      }
+      if (!is.null(state)){
         private$state = state
         # add empty params based on private/static info?
       }
@@ -157,7 +162,7 @@ Module <- R6::R6Class(
     #'
     #' @returns A list of values that can be transformed to JSON
     serialize = function(){
-      list(class = class(self)[1], title = private$title, imports = isolate(reactiveValuesToList(private$module_inputs)), params = as.list(private$params))
+      list(class = class(self)[1], title = private$title, imports = isolate(reactiveValuesToList(private$module_inputs)), params = isolate(reactiveValuesToList(private$params)))
     },
     #' @description
     #' Get the state of this module
@@ -278,22 +283,31 @@ Module <- R6::R6Class(
         
         # Override the observe function so we can automatically keep them in a list so we can properly destroy them when the module is removed
         observers <- list()
-        observe <- function(x, env = parent.frame(), ...){
-          print("custom observe")
+        
+        observe_quoted <- function(x, env = parent.frame(), ...){
+          print("custom quoted observe")
           force(env)
           obs <- shiny::observe(x, env, ...)
           observers <- append(observers, obs)
           return(obs)
         }
         
+
+        
         private$module_outputs <- moduleServer(private$id, function(input, output, session){
           ns <- session$ns
           
-          print(stringr::str_c("start server function for ", private$id))
+          observe <- function(...){
+            print("custom observe")
+            obs <- shiny::observe(...)
+            observers <<- append(observers, obs)
+            return(obs)
+          }
           
+          print(stringr::str_c("start server function for ", private$id))
           module_inputs <- reactiveValues()
           module_inputs_observers <- purrr::map(names(private$module_inputs), function(varname){
-            observe({
+            observe_quoted({
               quote({
                 input_path <- private$module_inputs[[varname]]
                 print(stringr::str_c("[", session$ns(""), "] execute observer for: ", stringr::str_c(input_path, collapse = ", ")))
@@ -319,11 +333,11 @@ Module <- R6::R6Class(
           module_outputs <- reactiveValues()
           
           # This calls each unique module's server function
-          private$server(input, output, session, module_inputs, module_outputs)
+          private$server(input, output, session, observe, module_inputs, module_outputs)
           
           # Create observers for changes to stateful inputs
           module_states_observers <- purrr::imap(private$state, function(value, varname){
-            observe({
+            observe_quoted({
               quote({
                 print(stringr::str_c("[", session$ns(""), "] execute state observer for ", varname, ": ", value))
                 if (private$state[[varname]] != input[[varname]]){
@@ -363,13 +377,13 @@ Module <- R6::R6Class(
           
           # Clean up and remove this module
           private$reactive_remove <- function(){
-            purrr::walk(module_inputs_observers, ~.$destroy())
-            module_inputs_observers <<- NULL
             module_inputs <<- NULL
             purrr::walk(observers, ~.$destroy())
             observers <<- NULL
-            module_data <<- NULL
-            
+            #purrr::walk(module_inputs_observers, ~.$destroy())
+            module_inputs_observers <<- NULL
+            module_states_observers <<- NULL
+
             # Use some internal trickery to remove input values
             #   If we do not do this, then creating a new instance of this module might reuse the old values for buttons
             #   and immediately trigger any related observers

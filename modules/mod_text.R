@@ -17,11 +17,16 @@ Text <- R6::R6Class(
       )
     },
     
-    server = function(input, output, session, module_inputs, module_outputs){
+    server = function(input, output, session, observe, module_inputs, module_outputs){
       ns <- session$ns
       
       output$text <- renderPrint({
         print(.subset2(input, "impl")$.values)
+      })
+      
+      observe({
+        print(getQueryString())
+        print(getUrlHash())
       })
     }
   ),

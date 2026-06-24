@@ -18,21 +18,19 @@ Slider <- R6::R6Class(
       )
     },
     
-    server = function(input, output, session, module_inputs, module_outputs){
+    server = function(input, output, session, observe, module_inputs, module_outputs){
       ns <- session$ns
-
+      
       output$fullscreenmessage <- renderUI({
         if (self$is_fullscreen()){
           p("Je bekijkt deze module nu in full screen mode!")
         }
       })
       
-      # Add a variable as an export
-      # Observer to update output value when UI is present and changed
       observe({
         print("slider change")
         module_outputs$slider_value <- input$slider
-      }) %>% bindEvent(input$slider)
+      }) %>% bindEvent(input$slider, ignoreInit = TRUE)
       
       observe({
         print(stringr::str_c("Param {min: ",private$params$min, "}"))
@@ -45,6 +43,7 @@ Slider <- R6::R6Class(
           serialize(modules = private$globals$modules)
         }
       }) %>% bindEvent(private$params$min, ignoreInit = TRUE)
+      
       observe({
         print(stringr::str_c("Param {max: ",private$params$max, "}"))
         try({
