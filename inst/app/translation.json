@@ -3,6 +3,10 @@
   "translation": [
     {"en": "Settings", "nl": "Instellingen"},
     {"en": "Language", "nl": "Taal"},
+    {"en": "Theme", "nl": "Thema"},
+    {"en": "Tile actions", "nl": "Tegel acties"},
+    {"en": "Folded in tile menu", "nl": "Samen in tegelmenu"},
+    {"en": "Separate buttons in tile header", "nl": "Losse knoppen in titelbalk"},
     {"en": "New", "nl": "Nieuw"},
     {"en": "Change page title", "nl": "Verander pagina titel"},
     {"en": "Print page", "nl": "Print pagina"},

@@ -13,15 +13,19 @@ ElementalPreferences <- R6::R6Class(
       div(
         h1(private$title),
 
-        selectInput(ns("theme"), "Thema", c("shiny", bslib::bootswatch_themes()), private$globals$preferences$theme), 
-        selectInput(ns("language"), private$globals$i18n$t("Language"), choices = private$globals$i18n$get_languages(), selected = private$globals$i18n$get_translation_language()),
-        selectInput(ns("tile_menu"), "Tegel acties", c("Samen in menu" = TRUE, "Los in titelbalk" = FALSE), selected = private$globals$preferences$tile_menu),
+        selectInput(ns("theme"), private$globals$t("Theme"), c("shiny", bslib::bootswatch_themes()), private$globals$preferences$theme), 
+        selectInput(ns("language"), private$globals$t("Language"), choices = private$globals$i18n$get_languages(), selected = private$globals$i18n$get_translation_language()),
+        uiOutput(ns("tile_menu_ui")),
         actionButton(ns("done"), "Gereed")
       )
     },
     
     server = function(input, output, session){
       ns <- session$ns
+      
+      output$tile_menu_ui <- renderUI({
+        selectInput(ns("tile_menu"), private$globals$t("Tile actions"), choices = c(TRUE, FALSE) %>% setNames(c(private$globals$text["Folded in tile menu"], private$globals$text["Separate buttons in tile header"])), selected = private$globals$preferences$tile_menu)
+      }) %>% bindEvent(private$globals$text)
       
       observe({
         self$remove()
