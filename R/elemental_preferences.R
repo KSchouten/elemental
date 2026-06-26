@@ -37,6 +37,8 @@ ElementalPreferences <- R6::R6Class(
 
       observe({
         shiny.i18n::update_lang(input$language)
+        private$globals$i18n$set_translation_language(input$language)
+        
       }) %>% bindEvent(input$language, ignoreInit = TRUE)
       
       observe({

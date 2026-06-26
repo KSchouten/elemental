@@ -7,6 +7,9 @@
     {"en": "Change page title", "nl": "Verander pagina titel"},
     {"en": "Print page", "nl": "Print pagina"},
     {"en": "Preferences", "nl": "Voorkeuren"},
-    {"en": "Keyboard shortcuts", "nl": "Sneltoetsen"}
+    {"en": "Keyboard shortcuts", "nl": "Sneltoetsen"},
+    {"en": "Show this overview of keyboard shortcuts", "nl": "Toon dit sneltoetsen overzicht"},
+    {"en": "Open the 'Preferences' dialog", "nl": "Open het 'Voorkeuren' menu"},
+    {"en": "Done", "nl": "Klaar"}
   ]
 }

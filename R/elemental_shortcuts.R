@@ -3,19 +3,18 @@ ElementalShortcuts <- R6::R6Class(
   inherit = Element,
   
   private = list(
-    
-    title = "Sneltoetsen",
-    
+
     # Override this for module-specific UI
     ui = function(){
       
       ns <- NS(private$id)
       div(id = ns("body"),
-        h1(private$title),
+        h1(private$globals$i18n$t("Keyboard shortcuts")),
         
-        p(tags$kbd("?"), "Toon sneltoetsen"),
+        p(tags$kbd("?"), private$globals$i18n$t("Show this overview of keyboard shortcuts")),
+        p(tags$kbd("V"), private$globals$i18n$t("Open the 'Preferences' dialog")),
         
-        actionButton(ns("done"), "Klaar"),
+        actionButton(ns("done"), private$globals$i18n$t("Done")),
         uiOutput(ns("events"))
       )
     },
