@@ -260,9 +260,9 @@ ElementalTile <- R6::R6Class(
               steps = tour,
               showBullets = FALSE,
               showProgress = TRUE,
-              nextLabel = "Volgende",
-              prevLabel = "Vorige",
-              doneLabel = "Sluiten",
+              nextLabel = private$globals$i18n$t("Next"),
+              prevLabel = private$globals$i18n$t("Previous"),
+              doneLabel = private$globals$i18n$t("Close"),
               # tooltipClass is needed here to override the default styling that hides .introjs-tooltipReferenceLayer.
               # The tooltipReferenceLayer is hidden because of the switch_tab steps but those are not used here.
               tooltipClass = "page-settings-tour",

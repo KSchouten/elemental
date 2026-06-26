@@ -18,6 +18,9 @@
     {"en": "Module settings", "nl": "Module instellingen"},
     {"en": "Remove this tile", "nl": "Verwijder deze tegel"},
     {"en": "Remove this module", "nl": "Verwijder deze module"},
-    {"en": "New page", "nl": "Nieuwe pagina"}
+    {"en": "New page", "nl": "Nieuwe pagina"},
+    {"en": "Next", "nl": "Volgende"},
+    {"en": "Previous", "nl": "Vorige"},
+    {"en": "Close", "nl": "Sluiten"}
   ]
 }
