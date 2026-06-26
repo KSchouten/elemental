@@ -21,6 +21,11 @@
     {"en": "New page", "nl": "Nieuwe pagina"},
     {"en": "Next", "nl": "Volgende"},
     {"en": "Previous", "nl": "Vorige"},
-    {"en": "Close", "nl": "Sluiten"}
+    {"en": "Close", "nl": "Sluiten"},
+    {"en": "Module will be added to tile", "nl": "Module wordt toegevoegd aan tegel"},
+    {"en": "Parameters and dependencies on other modules can be adjusted with", "nl": "Parameters en afhankelijkheden van andere modules kunnen via"},
+    {"en": "in the tile menu.", "nl": "in het tegelmenu worden aangepast."},
+    {"en": "Ok", "nl": "Akkoord"},
+    {"en": "Cancel", "nl": "Annuleren"}
   ]
 }
