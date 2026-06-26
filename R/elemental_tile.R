@@ -197,7 +197,7 @@ ElementalTile <- R6::R6Class(
       private$observers$maximize <- observe({
         req(input[[stringr::str_c(private$id,"-menu-maximize")]] + input[[stringr::str_c(private$id,"-header-maximize")]] > 0)
         # we leverage the hidden fullscreen tooltip button (because of fullscreen=TRUE in the navset_card_tab) and just click it programmatically
-        shinyjs::runjs(stringr::str_c("$('#", private$id, "').parent().parent().children().eq(2).children().click()"))
+        shinyjs::runjs(stringr::str_c("$('#", private$id, "').parent().parent().children().eq(3).children().click()"))
       }) %>% bindEvent(input[[stringr::str_c(private$id,"-menu-maximize")]], input[[stringr::str_c(private$id,"-header-maximize")]], ignoreInit = TRUE)
       
       # Action observer: Change title
