@@ -4,7 +4,6 @@ ElementalAddModule <- R6::R6Class(
   
   private = list(
     
-    title = "Module toevoegen",
     tile = NULL,
     
     # Override this for module-specific UI
@@ -12,13 +11,13 @@ ElementalAddModule <- R6::R6Class(
       
       ns <- NS(private$id)
       div(
-        h1(private$title),
+        h1(private$globals$t("Add module")),
         selectInput(ns("module"), "Module", purrr::map_chr(private$globals$all_modules, "classname") %>% setNames(purrr::map_chr(private$globals$all_modules, "name"))),
         
-        p("Module wordt toegevoegd aan tegel ", strong(private$tile$get_title()), "."),
-        p("Parameters en afhankelijkheden van andere modules kunnen via ", em("Module instellingen"), " in het tegelmenu worden aangepast."),
-        div(actionButton(ns("ok"), "Akkoord"),
-            actionButton(ns("cancel"), "Annuleren"),
+        p(private$globals$t("Module will be added to tile"), " ", strong(private$tile$get_title()), "."),
+        p(private$globals$t("Parameters and dependencies on other modules can be adjusted with"), " ", em(private$globals$t("Module settings")), " ", private$globals$t("in the tile menu.")),
+        div(actionButton(ns("ok"), private$globals$t("Ok")),
+            actionButton(ns("cancel"), private$globals$t("Cancel")),
             style = "float: right")
         
       )

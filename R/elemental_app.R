@@ -13,10 +13,12 @@ App <- R6::R6Class(
     globals = reactiveValues(),
     theme = NULL,
     config = list(),
+    i18n = NULL,
     
     # Define UI for application
     ui = function(){
       addResourcePath("static", app_sys("app/www"))
+      
       tagList(
       
         # Use shinyjs
@@ -25,8 +27,8 @@ App <- R6::R6Class(
         rintrojs::introjsUI(),
         # Use shinyFeedback
         shinyFeedback::useShinyFeedback(),
-        
-        
+        # Use i18n
+        shiny.i18n::usei18n(private$i18n),
         
         # Show loading screen when app is loading
         waiter::use_waiter(),
@@ -37,17 +39,17 @@ App <- R6::R6Class(
           id = "page",
           lang = "en",
           fillable = FALSE,
-          nav_item(actionLink(inputId = stringr::str_c("new_page"), label = em("Nieuw..."), icon = icon("plus"), onclick = htmlwidgets::JS("this.blur()")), class = "first_button button"),
+          nav_item(actionLink(inputId = stringr::str_c("new_page"), label = em(private$i18n$t("New"),"..."), icon = icon("plus"), onclick = htmlwidgets::JS("this.blur()")), class = "first_button button"),
           nav_spacer(),
           nav_menu(
-            title = "Instellingen",
+            title = private$i18n$t("Settings"),
             icon = icon("cog"),
             align = "right",
-            nav_item(actionLink(inputId = "change_page_title", label = "Verander pagina titel", icon = icon("pen-to-square"))),
-            nav_item(actionLink(inputId = "print_page", label = "Print pagina", icon = icon("print"))),
-            nav_item(actionLink(inputId = "preferences", label = "Voorkeuren", icon = icon("sliders"))),
-            nav_item(actionLink(inputId = "shortcuts", label = HTML("Sneltoetsen <kbd>?</kbd>"), icon =icon("keyboard"))),
-            nav_item(tags$a(shiny::icon("github"), "Elemental @ GitHub", href = "https://github.com/KSchouten/elemental", target = "_blank")),
+            nav_item(actionLink(inputId = "change_page_title", label = span(private$i18n$t("Change page title")), icon = icon("pen-to-square"))),
+            nav_item(actionLink(inputId = "print_page", label = span(private$i18n$t("Print page")), icon = icon("print"))),
+            nav_item(actionLink(inputId = "preferences", label = span(private$i18n$t("Preferences"), HTML(" <kbd>V</kbd>")), icon = icon("sliders"))),
+            nav_item(actionLink(inputId = "shortcuts", label = span(private$i18n$t("Keyboard shortcuts"),HTML(" <kbd>?</kbd>")), icon =icon("keyboard"))),
+            nav_item(tags$a(shiny::icon("github"), span("Elemental @ GitHub"), href = "https://github.com/KSchouten/elemental", target = "_blank")),
             
           )
         ),
@@ -79,12 +81,13 @@ App <- R6::R6Class(
       
       # Check url for params
       
+            
       # Autologin user (locally or with url) and load page setup
       # Currently loads default page setup from pages.json
       private$globals$user <- "test"
       
       
-      private$globals$preferences <- private$config$preferences
+      
       
       private$globals$modules <- purrr::imap(private$config$modules, function(module, id){
         get_class(module$class)$new(id, module$title, private$globals, purrr::map(module$imports, unlist), module$params, private$config$state[[id]])
@@ -139,7 +142,7 @@ App <- R6::R6Class(
         
         last_page_id <- private$globals$pages[[length(private$globals$pages)]]$get_id()
         new_page <- ElementalPage$new(
-          list(class = "ElementalPage", title = "Nieuwe pagina", icon = "file-circle-plus", rows = list(
+          list(class = "ElementalPage", title = private$globals$i18n$t("New page"), icon = "file-circle-plus", rows = list(
             list(class = "ElementalRow", column_sizes = c(40,60), columns = list(
               list(class = "ElementalColumn", tiles = list(
                 list(class = "ElementalTile", title = "Tegel")
@@ -268,16 +271,16 @@ App <- R6::R6Class(
       # Preferences ----
       observe({
         req(is.null(private$globals$modal))
-        preferences <- ElementalPreferences$new(id = "app_preferences", title = "Voorkeuren", globals = private$globals)
+        preferences <- ElementalPreferences$new(id = "app_preferences", globals = private$globals)
         preferences$start_server()
         showModal(modalDialog(preferences$get_ui(), footer = NULL, easyClose = TRUE))
         private$globals$modal <- preferences
-      }) %>% bindEvent(input$preferences)
+      }) %>% bindEvent(input$preferences, input$key_v, ignoreInit = TRUE)
       
       # Keyboard shortcuts ----
       observe({
         req(is.null(private$globals$modal))
-        shortcuts <- ElementalShortcuts$new(id = "shortcuts", title = "Sneltoetsen", globals = private$globals)
+        shortcuts <- ElementalShortcuts$new(id = "shortcuts", globals = private$globals)
         shortcuts$start_server()
         showModal(modalDialog(shortcuts$get_ui(), footer = NULL, easyClose = TRUE))
         private$globals$modal <- shortcuts
@@ -286,7 +289,7 @@ App <- R6::R6Class(
       # Page title ----
       observe({
         req(is.null(private$globals$modal))
-        edit_title <- ElementalEditTitle$new(id = stringr::str_c("edit-page-title"), title = "Verander titel", globals = private$globals, ui_element = private$globals$pages[[input$page]])
+        edit_title <- ElementalEditTitle$new(id = stringr::str_c("edit-page-title"), globals = private$globals, ui_element = private$globals$pages[[input$page]])
         edit_title$start_server()
         showModal(modalDialog(edit_title$get_ui(), footer = NULL, easyClose = TRUE))
         private$globals$modal <- edit_title
@@ -314,6 +317,15 @@ App <- R6::R6Class(
         
       }) %>% bindEvent(input$add_module)
       
+      # Experiment with translations ---
+      
+      # purrr::walk(fromJSON(app_sys("app/translation.json"))$translation, function(entry){
+      #   output[[stringr::str_c("t_",entry[[1]])]] <- renderText(quote({
+      #     return(entry[[private$globals$language]])
+      #   }), quoted = TRUE)
+      # })
+      
+      
       # Select first page
       bslib::nav_select("page", isolate(private$globals$pages[[1]]$get_id()))
       waiter::waiter_hide()
@@ -328,13 +340,32 @@ App <- R6::R6Class(
     #'
     #' @param modules A list of R6Generators, result of sourcing files
     #' @param config A list, usually from reading json, that contains the specification of the dashboard
+    #' @param language Default language the app needs to start in
     #'
     #' @returns An App object
     initialize = function(modules, config){
       private$theme <- create_theme()
 
-      private$globals$all_modules <- c(modules, objects("package:elemental") %>% purrr::map(get) %>% purrr::keep(~all(class(.)=="R6ClassGenerator")) %>% purrr::keep(~!is.null(.$inherit) && .$inherit == "Module"))
       private$config <- config
+      private$globals$preferences <- config$preferences
+      
+      # Load i18n library
+      private$i18n <- shiny.i18n::Translator$new(translation_json_path = app_sys("app/translation.json"))
+      private$i18n$set_translation_language(config$preferences$language)
+      # Link to it from globals so every module can use it
+      private$globals$i18n <- private$i18n
+      # Provide a shortcut method that always works because built-in function doesn't always trigger the dynamic translation
+      private$globals$t <- function(text){
+        shiny::span(class = "i18n", `data-key` = text, private$globals$i18n$t(text))
+      }
+      # The above generates a span tag, which does not work in all cases (like title tags on buttons, etc.)
+      #  For those instances, a reactive value can be found in this list with the key language in the key
+      #  and the target language in the value
+      private$globals$text <- fromJSON(app_sys("app/translation.json"))$translation %>% purrr::map(function(x){list(x[[config$preferences$language]]) %>% setNames(x[[1]])}) %>% unlist(recursive = FALSE)
+      
+      # add all child objects of Module to the list of modules received from the user
+      private$globals$all_modules <- c(modules, objects("package:elemental") %>% purrr::map(get) %>% purrr::keep(~all(class(.)=="R6ClassGenerator")) %>% purrr::keep(~!is.null(.$inherit) && .$inherit == "Module"))
+      
     },
     
     #' @description

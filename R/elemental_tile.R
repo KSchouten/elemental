@@ -77,6 +77,13 @@ ElementalTile <- R6::R6Class(
     
     get_ui = function(){
       print(stringr::str_c("get ui Tile ", private$id))
+      
+      #private$globals$i18n$use_js()
+      # t <- function(text){
+      #   private$globals$i18n$t(text)
+      #   shiny::span(class = "i18n", `data-key` = text, private$globals$i18n$t(text))
+      # }
+      
       tagList(
         
         navset_card_tab(
@@ -85,22 +92,16 @@ ElementalTile <- R6::R6Class(
           full_screen = TRUE,
           # modules go here later
           
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-info"), title="Start info tour", label = "", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))), class = "first_button button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-title"), title="Verander tegel titel", label = "", icon = icon("pen-to-square"))), class = "button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-add"), titel = "Module toevoegen", label = "", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))), class = "button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-maximize"), titel = "Volledig scherm", label = "", icon = icon("up-right-and-down-left-from-center"))), class = "button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-settings"), titel = "Module instellingen", label = "", icon = icon("cog"))), class = "button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-remove-tile"), titel = "Verwijder deze tegel", label = "", icon = icon("trash-can"))), class = "button"),
-          nav_item((actionLink(inputId = stringr::str_c(private$id,"-header-remove-module"), titel = "Verwijder deze module", label = "", icon = icon("trash-can"))), class = "button"),
+          header = uiOutput(stringr::str_c(private$id,"-buttons")),
           
           nav_menu("", value = "_menu_", icon = icon("bars"),
-                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-info"), label = "Start info tour", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))),
-                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-title"), label = "Verander tegel titel", icon = icon("pen-to-square"))),
-                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-add"), label = "Module toevoegen", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))),
-                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-maximize"), label = "Volledig scherm", icon = icon("up-right-and-down-left-from-center")))),
-                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-settings"), label = "Module instellingen", icon = icon("cog")))),
-                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove-tile"), label = "Verwijder deze tegel", icon = icon("trash-can")))),
-                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove-module"), label = "Verwijder deze module", icon = icon("trash-can"))))
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-info"), label = private$globals$t("Start intro tour"), icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))),
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-title"), label = private$globals$t("Change tile title"), icon = icon("pen-to-square"))),
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-add"), label = private$globals$t("Add module"), icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-maximize"), label = private$globals$t("Full screen"), icon = icon("up-right-and-down-left-from-center")))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-settings"), label = private$globals$t("Module settings"), icon = icon("cog")))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove-tile"), label = private$globals$t("Remove this tile"), icon = icon("trash-can")))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove-module"), label = private$globals$t("Remove this module"), icon = icon("trash-can"))))
                    ),        
           
           
@@ -144,6 +145,19 @@ ElementalTile <- R6::R6Class(
     
     complete_ui_reactive = function(input, output, session){
       print(stringr::str_c("complete UI for ", private$id))
+      
+      # buttons in header
+      output[[stringr::str_c(private$id, "-buttons")]] <- renderUI({
+        div(class="btn-group btn-group-sm",
+          actionButton(inputId = stringr::str_c(private$id,"-header-info"), title=private$globals$text["Start intro tour"], label = "", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-title"), title=private$globals$text["Change tile title"], label = "", icon = icon("pen-to-square")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-add"), title = private$globals$text["Add module"], label = "", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-maximize"), title = private$globals$text["Full screen"], label = "", icon = icon("up-right-and-down-left-from-center")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-settings"), title = private$globals$text["Module settings"], label = "", icon = icon("cog")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-remove-tile"), title = private$globals$text["Remove this tile"], label = "", icon = icon("trash-can")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-remove-module"), title = private$globals$text["Remove this module"], label = "", icon = icon("trash-can"))
+        )
+      })
       
       # add extra class to tablist ul element to ensure tabs are floating right also on Edge
       shinyjs::runjs(stringr::str_c("$('#",private$id,"').addClass('justify-content-end')"))
@@ -246,9 +260,9 @@ ElementalTile <- R6::R6Class(
               steps = tour,
               showBullets = FALSE,
               showProgress = TRUE,
-              nextLabel = "Volgende",
-              prevLabel = "Vorige",
-              doneLabel = "Sluiten",
+              nextLabel = private$globals$i18n$t("Next"),
+              prevLabel = private$globals$i18n$t("Previous"),
+              doneLabel = private$globals$i18n$t("Close"),
               # tooltipClass is needed here to override the default styling that hides .introjs-tooltipReferenceLayer.
               # The tooltipReferenceLayer is hidden because of the switch_tab steps but those are not used here.
               tooltipClass = "page-settings-tour",
@@ -306,7 +320,8 @@ ElementalTile <- R6::R6Class(
           # show menu
           nav_show(private$id, "_menu_", session = session)
           # hide all header buttons
-          shinyjs::runjs(stringr::str_c("$('#", private$id, " > .bslib-nav-item a').hide()"))
+          #shinyjs::runjs(stringr::str_c("$('#", private$id, " > .bslib-nav-item a').hide()"))
+          shinyjs::runjs(stringr::str_c("$('#", private$id, "-buttons').parent().hide()"))
           
           # show/hide menu options depending on if there are modules shown in this tile
           if (length(private$modules) > 0){
@@ -327,8 +342,9 @@ ElementalTile <- R6::R6Class(
         } else {
           # hide the menu
           nav_hide(private$id, "_menu_", session = session)
-          # show the default header buttons
+          # show the default header buttons div
           #shinyjs::runjs(stringr::str_c("$('#", private$id, " > .bslib-nav-item a').show()"))
+          shinyjs::runjs(stringr::str_c("$('#", private$id, "-buttons').parent().show()"))
           
           shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-title').show()"))
           shinyjs::runjs(stringr::str_c("$('#", private$id, "-header-add').show()"))

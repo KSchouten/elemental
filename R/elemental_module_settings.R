@@ -4,7 +4,6 @@ ElementalModuleSettings <- R6::R6Class(
   
   private = list(
     
-    title = "Module instellingen",
     tile = NULL,
     module = NULL,
     all_available_exports = list(),
@@ -21,13 +20,13 @@ ElementalModuleSettings <- R6::R6Class(
 
       output$modal_ui <- renderUI({
         tagList(
-          h1(private$title),
+          h1(private$globals$t("Module settings")),
           p(private$module()$get_id()),
           
-          textInput(ns("title"), "Titel", private$module()$get_title()),
+          textInput(ns("title"), private$globals$t("Title"), private$module()$get_title()),
           if(length(private$module()$get_params())>0){
             tagList(
-              h4("Parameters"),
+              h4(private$globals$t("Parameters")),
               !!!purrr::map(private$module()$get_params(), function(name){
                 textInput(ns(stringr::str_c("param-", name)), name, private$module()$get_param(name))
               })
@@ -35,14 +34,14 @@ ElementalModuleSettings <- R6::R6Class(
           },
           if(length(private$module()$get_inputs())>0){
             tagList(
-              h4("Afhankelijkheden"),
+              h4(private$globals$t("Dependencies")),
               !!!purrr::map(private$module()$get_inputs(), function(name){
                 print(stringr::str_c(private$module()$get_input(name), collapse = " "))
                 selectInput(ns(stringr::str_c("input-", name)), name, private$all_available_exports, selected = stringr::str_c(private$module()$get_input(name), collapse = " "))
               })
             )
           },
-          actionButton(ns("done"), "Gereed")
+          actionButton(ns("done"), private$globals$t("Done"))
         )
       })
       
@@ -111,7 +110,7 @@ ElementalModuleSettings <- R6::R6Class(
         private$module <- reactiveVal(module)
       })
       
-      private$all_available_exports <- append(list("Kies waarde uit andere module" = ""), purrr::map(private$globals$modules, function(m){
+      private$all_available_exports <- append(list("") %>% setNames(private$globals$i18n$t("Choose value from another module")), purrr::map(private$globals$modules, function(m){
         stringr::str_c(m$get_id(), " ", m$get_outputs()) %>% setNames(stringr::str_c(m$get_title(), " -> ", m$get_outputs()))
       }) %>% purrr::flatten())
     },

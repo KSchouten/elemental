@@ -18,7 +18,8 @@ Imports:
     waiter,
     R6,
     htmlwidgets,
-    jsonlite
+    jsonlite,
+    shiny.i18n
 Suggests: 
     knitr,
     rmarkdown,
