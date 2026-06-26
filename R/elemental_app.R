@@ -87,7 +87,7 @@ App <- R6::R6Class(
       private$globals$user <- "test"
       
       
-      private$globals$preferences <- private$config$preferences
+      
       
       private$globals$modules <- purrr::imap(private$config$modules, function(module, id){
         get_class(module$class)$new(id, module$title, private$globals, purrr::map(module$imports, unlist), module$params, private$config$state[[id]])
@@ -343,12 +343,15 @@ App <- R6::R6Class(
     #' @param language Default language the app needs to start in
     #'
     #' @returns An App object
-    initialize = function(modules, config, language){
+    initialize = function(modules, config){
       private$theme <- create_theme()
 
+      private$config <- config
+      private$globals$preferences <- config$preferences
+      
       # Load i18n library
       private$i18n <- shiny.i18n::Translator$new(translation_json_path = app_sys("app/translation.json"))
-      private$i18n$set_translation_language(language)
+      private$i18n$set_translation_language(config$preferences$language)
       # Link to it from globals so every module can use it
       private$globals$i18n <- private$i18n
       # Provide a shortcut method that always works because built-in function doesn't always trigger the dynamic translation
@@ -358,11 +361,11 @@ App <- R6::R6Class(
       # The above generates a span tag, which does not work in all cases (like title tags on buttons, etc.)
       #  For those instances, a reactive value can be found in this list with the key language in the key
       #  and the target language in the value
-      private$globals$text <- fromJSON(app_sys("app/translation.json"))$translation %>% purrr::map(function(x){list(x[[language]]) %>% setNames(x[[1]])}) %>% unlist(recursive = FALSE)
+      private$globals$text <- fromJSON(app_sys("app/translation.json"))$translation %>% purrr::map(function(x){list(x[[config$preferences$language]]) %>% setNames(x[[1]])}) %>% unlist(recursive = FALSE)
       
       # add all child objects of Module to the list of modules received from the user
       private$globals$all_modules <- c(modules, objects("package:elemental") %>% purrr::map(get) %>% purrr::keep(~all(class(.)=="R6ClassGenerator")) %>% purrr::keep(~!is.null(.$inherit) && .$inherit == "Module"))
-      private$config <- config
+      
     },
     
     #' @description

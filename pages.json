@@ -63,6 +63,7 @@
   },
   "preferences": {
     "theme": "shiny",
-    "tile_menu": true
+    "tile_menu": true,
+    "language": "en"
   }
 }

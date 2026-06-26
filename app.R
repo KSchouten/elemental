@@ -23,7 +23,7 @@ config <- jsonlite::read_json("pages.json")
 devtools::document()
 devtools::load_all()
 
-app = App$new(modules, config, "nl")
+app = App$new(modules, config)
 
 if(interactive()){
   runApp(app$run(), launch.browser = TRUE)
