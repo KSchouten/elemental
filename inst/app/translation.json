@@ -26,6 +26,10 @@
     {"en": "Parameters and dependencies on other modules can be adjusted with", "nl": "Parameters en afhankelijkheden van andere modules kunnen via"},
     {"en": "in the tile menu.", "nl": "in het tegelmenu worden aangepast."},
     {"en": "Ok", "nl": "Akkoord"},
-    {"en": "Cancel", "nl": "Annuleren"}
+    {"en": "Cancel", "nl": "Annuleren"},
+    {"en": "Title", "nl": "Titel"},
+    {"en": "Parameters", "nl": "Parameters"},
+    {"en": "Dependencies", "nl": "Afhankelijkheden"},
+    {"en": "Choose value from another module", "nl": "Kies waarde uit andere module"}
   ]
 }
