@@ -142,7 +142,7 @@ App <- R6::R6Class(
         
         last_page_id <- private$globals$pages[[length(private$globals$pages)]]$get_id()
         new_page <- ElementalPage$new(
-          list(class = "ElementalPage", title = "Nieuwe pagina", icon = "file-circle-plus", rows = list(
+          list(class = "ElementalPage", title = private$globals$i18n$t("New page"), icon = "file-circle-plus", rows = list(
             list(class = "ElementalRow", column_sizes = c(40,60), columns = list(
               list(class = "ElementalColumn", tiles = list(
                 list(class = "ElementalTile", title = "Tegel")
@@ -271,7 +271,7 @@ App <- R6::R6Class(
       # Preferences ----
       observe({
         req(is.null(private$globals$modal))
-        preferences <- ElementalPreferences$new(id = "app_preferences", title = "Voorkeuren", globals = private$globals)
+        preferences <- ElementalPreferences$new(id = "app_preferences", globals = private$globals)
         preferences$start_server()
         showModal(modalDialog(preferences$get_ui(), footer = NULL, easyClose = TRUE))
         private$globals$modal <- preferences
@@ -280,7 +280,7 @@ App <- R6::R6Class(
       # Keyboard shortcuts ----
       observe({
         req(is.null(private$globals$modal))
-        shortcuts <- ElementalShortcuts$new(id = "shortcuts", title = "Sneltoetsen", globals = private$globals)
+        shortcuts <- ElementalShortcuts$new(id = "shortcuts", globals = private$globals)
         shortcuts$start_server()
         showModal(modalDialog(shortcuts$get_ui(), footer = NULL, easyClose = TRUE))
         private$globals$modal <- shortcuts
@@ -289,7 +289,7 @@ App <- R6::R6Class(
       # Page title ----
       observe({
         req(is.null(private$globals$modal))
-        edit_title <- ElementalEditTitle$new(id = stringr::str_c("edit-page-title"), title = "Verander titel", globals = private$globals, ui_element = private$globals$pages[[input$page]])
+        edit_title <- ElementalEditTitle$new(id = stringr::str_c("edit-page-title"), globals = private$globals, ui_element = private$globals$pages[[input$page]])
         edit_title$start_server()
         showModal(modalDialog(edit_title$get_ui(), footer = NULL, easyClose = TRUE))
         private$globals$modal <- edit_title
@@ -317,6 +317,15 @@ App <- R6::R6Class(
         
       }) %>% bindEvent(input$add_module)
       
+      # Experiment with translations ---
+      
+      # purrr::walk(fromJSON(app_sys("app/translation.json"))$translation, function(entry){
+      #   output[[stringr::str_c("t_",entry[[1]])]] <- renderText(quote({
+      #     return(entry[[private$globals$language]])
+      #   }), quoted = TRUE)
+      # })
+      
+      
       # Select first page
       bslib::nav_select("page", isolate(private$globals$pages[[1]]$get_id()))
       waiter::waiter_hide()
@@ -337,9 +346,19 @@ App <- R6::R6Class(
     initialize = function(modules, config, language){
       private$theme <- create_theme()
 
+      # Load i18n library
       private$i18n <- shiny.i18n::Translator$new(translation_json_path = app_sys("app/translation.json"))
       private$i18n$set_translation_language(language)
+      # Link to it from globals so every module can use it
       private$globals$i18n <- private$i18n
+      # Provide a shortcut method that always works because built-in function doesn't always trigger the dynamic translation
+      private$globals$t <- function(text){
+        shiny::span(class = "i18n", `data-key` = text, private$globals$i18n$t(text))
+      }
+      # The above generates a span tag, which does not work in all cases (like title tags on buttons, etc.)
+      #  For those instances, a reactive value can be found in this list with the key language in the key
+      #  and the target language in the value
+      private$globals$text <- fromJSON(app_sys("app/translation.json"))$translation %>% purrr::map(function(x){list(x[[language]]) %>% setNames(x[[1]])}) %>% unlist(recursive = FALSE)
       
       # add all child objects of Module to the list of modules received from the user
       private$globals$all_modules <- c(modules, objects("package:elemental") %>% purrr::map(get) %>% purrr::keep(~all(class(.)=="R6ClassGenerator")) %>% purrr::keep(~!is.null(.$inherit) && .$inherit == "Module"))

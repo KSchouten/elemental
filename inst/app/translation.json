@@ -10,6 +10,14 @@
     {"en": "Keyboard shortcuts", "nl": "Sneltoetsen"},
     {"en": "Show this overview of keyboard shortcuts", "nl": "Toon dit sneltoetsen overzicht"},
     {"en": "Open the 'Preferences' dialog", "nl": "Open het 'Voorkeuren' menu"},
-    {"en": "Done", "nl": "Klaar"}
+    {"en": "Done", "nl": "Klaar"},
+    {"en": "Start intro tour", "nl": "Start info tour"},
+    {"en": "Change tile title", "nl": "Verander tegel titel"},
+    {"en": "Add module", "nl": "Module toevoegen"},
+    {"en": "Full screen", "nl": "Volledig scherm"},
+    {"en": "Module settings", "nl": "Module instellingen"},
+    {"en": "Remove this tile", "nl": "Verwijder deze tegel"},
+    {"en": "Remove this module", "nl": "Verwijder deze module"},
+    {"en": "New page", "nl": "Nieuwe pagina"}
   ]
 }

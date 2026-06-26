@@ -28,7 +28,7 @@ Element <- R6::R6Class(
   ),
   
   public = list(
-    initialize = function(id, title, globals){
+    initialize = function(id, title = NULL, globals){
       private$id <- id
       if (!is.null(title)){
         private$title <- title

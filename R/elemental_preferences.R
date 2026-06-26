@@ -36,8 +36,12 @@ ElementalPreferences <- R6::R6Class(
       }) %>% bindEvent(input$theme, ignoreInit = TRUE)
 
       observe({
+        # this will update all the dynamic translations (inside span tags)
         shiny.i18n::update_lang(input$language)
+        # this ensures that the next time you open the preferences it will show the right language as selected
         private$globals$i18n$set_translation_language(input$language)
+        # this updates the set of reactive values with all texts for cases where a span tag cannot be used (such as title attributes on buttons)
+        private$globals$text <- fromJSON(app_sys("app/translation.json"))$translation %>% purrr::map(function(x){list(x[[input$language]]) %>% setNames(x[[1]])}) %>% unlist(recursive = FALSE)
         
       }) %>% bindEvent(input$language, ignoreInit = TRUE)
       
