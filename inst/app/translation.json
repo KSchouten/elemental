@@ -1,0 +1,12 @@
+{
+  "languages": ["en","nl"],
+  "translation": [
+    {"en": "Settings", "nl": "Instellingen"},
+    {"en": "Language", "nl": "Taal"},
+    {"en": "New", "nl": "Nieuw"},
+    {"en": "Change page title", "nl": "Verander pagina titel"},
+    {"en": "Print page", "nl": "Print pagina"},
+    {"en": "Preferences", "nl": "Voorkeuren"},
+    {"en": "Keyboard shortcuts", "nl": "Sneltoetsen"}
+  ]
+}

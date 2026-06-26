@@ -14,6 +14,7 @@ ElementalPreferences <- R6::R6Class(
         h1(private$title),
 
         selectInput(ns("theme"), "Thema", c("shiny", bslib::bootswatch_themes()), private$globals$preferences$theme), 
+        selectInput(ns("language"), private$globals$i18n$t("Language"), choices = private$globals$i18n$get_languages(), selected = private$globals$i18n$get_translation_language()),
         selectInput(ns("tile_menu"), "Tegel acties", c("Samen in menu" = TRUE, "Los in titelbalk" = FALSE), selected = private$globals$preferences$tile_menu),
         actionButton(ns("done"), "Gereed")
       )
@@ -34,6 +35,10 @@ ElementalPreferences <- R6::R6Class(
         session$setCurrentTheme(create_theme(input$theme))
       }) %>% bindEvent(input$theme, ignoreInit = TRUE)
 
+      observe({
+        shiny.i18n::update_lang(input$language)
+      }) %>% bindEvent(input$language, ignoreInit = TRUE)
+      
       observe({
         req(private$globals$preferences$tile_menu != as.logical(input$tile_menu))
         private$globals$preferences$tile_menu <- as.logical(input$tile_menu)

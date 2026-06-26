@@ -13,10 +13,12 @@ App <- R6::R6Class(
     globals = reactiveValues(),
     theme = NULL,
     config = list(),
+    i18n = NULL,
     
     # Define UI for application
     ui = function(){
       addResourcePath("static", app_sys("app/www"))
+      
       tagList(
       
         # Use shinyjs
@@ -25,8 +27,8 @@ App <- R6::R6Class(
         rintrojs::introjsUI(),
         # Use shinyFeedback
         shinyFeedback::useShinyFeedback(),
-        
-        
+        # Use i18n
+        shiny.i18n::usei18n(private$i18n),
         
         # Show loading screen when app is loading
         waiter::use_waiter(),
@@ -37,17 +39,17 @@ App <- R6::R6Class(
           id = "page",
           lang = "en",
           fillable = FALSE,
-          nav_item(actionLink(inputId = stringr::str_c("new_page"), label = em("Nieuw..."), icon = icon("plus"), onclick = htmlwidgets::JS("this.blur()")), class = "first_button button"),
+          nav_item(actionLink(inputId = stringr::str_c("new_page"), label = em(private$i18n$t("New"),"..."), icon = icon("plus"), onclick = htmlwidgets::JS("this.blur()")), class = "first_button button"),
           nav_spacer(),
           nav_menu(
-            title = "Instellingen",
+            title = private$i18n$t("Settings"),
             icon = icon("cog"),
             align = "right",
-            nav_item(actionLink(inputId = "change_page_title", label = "Verander pagina titel", icon = icon("pen-to-square"))),
-            nav_item(actionLink(inputId = "print_page", label = "Print pagina", icon = icon("print"))),
-            nav_item(actionLink(inputId = "preferences", label = "Voorkeuren", icon = icon("sliders"))),
-            nav_item(actionLink(inputId = "shortcuts", label = HTML("Sneltoetsen <kbd>?</kbd>"), icon =icon("keyboard"))),
-            nav_item(tags$a(shiny::icon("github"), "Elemental @ GitHub", href = "https://github.com/KSchouten/elemental", target = "_blank")),
+            nav_item(actionLink(inputId = "change_page_title", label = span(private$i18n$t("Change page title")), icon = icon("pen-to-square"))),
+            nav_item(actionLink(inputId = "print_page", label = span(private$i18n$t("Print page")), icon = icon("print"))),
+            nav_item(actionLink(inputId = "preferences", label = span(private$i18n$t("Preferences"), HTML(" <kbd>V</kbd>")), icon = icon("sliders"))),
+            nav_item(actionLink(inputId = "shortcuts", label = span(private$i18n$t("Keyboard shortcuts"),HTML(" <kbd>?</kbd>")), icon =icon("keyboard"))),
+            nav_item(tags$a(shiny::icon("github"), span("Elemental @ GitHub"), href = "https://github.com/KSchouten/elemental", target = "_blank")),
             
           )
         ),
@@ -79,6 +81,7 @@ App <- R6::R6Class(
       
       # Check url for params
       
+            
       # Autologin user (locally or with url) and load page setup
       # Currently loads default page setup from pages.json
       private$globals$user <- "test"
@@ -272,7 +275,7 @@ App <- R6::R6Class(
         preferences$start_server()
         showModal(modalDialog(preferences$get_ui(), footer = NULL, easyClose = TRUE))
         private$globals$modal <- preferences
-      }) %>% bindEvent(input$preferences)
+      }) %>% bindEvent(input$preferences, input$key_v, ignoreInit = TRUE)
       
       # Keyboard shortcuts ----
       observe({
@@ -328,11 +331,17 @@ App <- R6::R6Class(
     #'
     #' @param modules A list of R6Generators, result of sourcing files
     #' @param config A list, usually from reading json, that contains the specification of the dashboard
+    #' @param language Default language the app needs to start in
     #'
     #' @returns An App object
-    initialize = function(modules, config){
+    initialize = function(modules, config, language){
       private$theme <- create_theme()
 
+      private$i18n <- shiny.i18n::Translator$new(translation_json_path = app_sys("app/translation.json"))
+      private$i18n$set_translation_language(language)
+      private$globals$i18n <- private$i18n
+      
+      # add all child objects of Module to the list of modules received from the user
       private$globals$all_modules <- c(modules, objects("package:elemental") %>% purrr::map(get) %>% purrr::keep(~all(class(.)=="R6ClassGenerator")) %>% purrr::keep(~!is.null(.$inherit) && .$inherit == "Module"))
       private$config <- config
     },

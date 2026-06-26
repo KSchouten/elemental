@@ -30,6 +30,9 @@ function logKey(e){
   if (e.key === '?'){
     Shiny.setInputValue("key_questionmark", e, {'priority': 'event'})
   }
+  if (e.key === 'V' | e.key === 'v'){
+    Shiny.setInputValue("key_v", e, {'priority': 'event'})
+  }
   
 
 }
