@@ -9,12 +9,12 @@ ElementalShortcuts <- R6::R6Class(
       
       ns <- NS(private$id)
       div(id = ns("body"),
-        h1(private$globals$i18n$t("Keyboard shortcuts")),
+        h1(private$globals$i18n$static_t("Keyboard shortcuts")),
         
-        p(tags$kbd("?"), private$globals$i18n$t("Show this overview of keyboard shortcuts")),
-        p(tags$kbd("V"), private$globals$i18n$t("Open the 'Preferences' dialog")),
+        p(tags$kbd("?"), private$globals$i18n$static_t("Show this overview of keyboard shortcuts")),
+        p(tags$kbd("V"), private$globals$i18n$static_t("Open the 'Preferences' dialog")),
         
-        actionButton(ns("done"), private$globals$i18n$t("Done")),
+        actionButton(ns("done"), private$globals$i18n$static_t("Done")),
         uiOutput(ns("events"))
       )
     },

@@ -95,13 +95,13 @@ ElementalTile <- R6::R6Class(
           header = uiOutput(stringr::str_c(private$id,"-buttons")),
           
           nav_menu("", value = "_menu_", icon = icon("bars"),
-                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-info"), label = private$globals$t("Start intro tour"), icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))),
-                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-title"), label = private$globals$t("Change tile title"), icon = icon("pen-to-square"))),
-                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-add"), label = private$globals$t("Add module"), icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))),
-                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-maximize"), label = private$globals$t("Full screen"), icon = icon("up-right-and-down-left-from-center")))),
-                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-settings"), label = private$globals$t("Module settings"), icon = icon("cog")))),
-                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove-tile"), label = private$globals$t("Remove this tile"), icon = icon("trash-can")))),
-                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove-module"), label = private$globals$t("Remove this module"), icon = icon("trash-can"))))
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-info"), label = private$globals$i18n$ui_t("Start intro tour"), icon = icon("info", style = "padding-left: 5px; padding-right: 5px;"))),
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-title"), label = private$globals$i18n$ui_t("Change tile title"), icon = icon("pen-to-square"))),
+                   nav_item(actionLink(inputId = stringr::str_c(private$id,"-menu-add"), label = private$globals$i18n$ui_t("Add module"), icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;"))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-maximize"), label = private$globals$i18n$ui_t("Full screen"), icon = icon("up-right-and-down-left-from-center")))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-settings"), label = private$globals$i18n$ui_t("Module settings"), icon = icon("cog")))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove-tile"), label = private$globals$i18n$ui_t("Remove this tile"), icon = icon("trash-can")))),
+                   nav_item(shinyjs::hidden(actionLink(inputId = stringr::str_c(private$id,"-menu-remove-module"), label = private$globals$i18n$ui_t("Remove this module"), icon = icon("trash-can"))))
                    ),        
           
           
@@ -149,13 +149,13 @@ ElementalTile <- R6::R6Class(
       # buttons in header
       output[[stringr::str_c(private$id, "-buttons")]] <- renderUI({
         div(class="btn-group btn-group-sm",
-          actionButton(inputId = stringr::str_c(private$id,"-header-info"), title=private$globals$text["Start intro tour"], label = "", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;")),
-          actionButton(inputId = stringr::str_c(private$id,"-header-title"), title=private$globals$text["Change tile title"], label = "", icon = icon("pen-to-square")),
-          actionButton(inputId = stringr::str_c(private$id,"-header-add"), title = private$globals$text["Add module"], label = "", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;")),
-          actionButton(inputId = stringr::str_c(private$id,"-header-maximize"), title = private$globals$text["Full screen"], label = "", icon = icon("up-right-and-down-left-from-center")),
-          actionButton(inputId = stringr::str_c(private$id,"-header-settings"), title = private$globals$text["Module settings"], label = "", icon = icon("cog")),
-          actionButton(inputId = stringr::str_c(private$id,"-header-remove-tile"), title = private$globals$text["Remove this tile"], label = "", icon = icon("trash-can")),
-          actionButton(inputId = stringr::str_c(private$id,"-header-remove-module"), title = private$globals$text["Remove this module"], label = "", icon = icon("trash-can"))
+          actionButton(inputId = stringr::str_c(private$id,"-header-info"), title=private$globals$i18n$reactive_t("Start intro tour"), label = "", icon = icon("info", style = "padding-left: 5px; padding-right: 5px;")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-title"), title=private$globals$i18n$reactive_t("Change tile title"), label = "", icon = icon("pen-to-square")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-add"), title = private$globals$i18n$reactive_t("Add module"), label = "", icon = icon("plus", style = "padding-left: 1px; padding-right: 1px;")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-maximize"), title = private$globals$i18n$reactive_t("Full screen"), label = "", icon = icon("up-right-and-down-left-from-center")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-settings"), title = private$globals$i18n$reactive_t("Module settings"), label = "", icon = icon("cog")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-remove-tile"), title = private$globals$i18n$reactive_t("Remove this tile"), label = "", icon = icon("trash-can")),
+          actionButton(inputId = stringr::str_c(private$id,"-header-remove-module"), title = private$globals$i18n$reactive_t("Remove this module"), label = "", icon = icon("trash-can"))
         )
       })
       
@@ -260,9 +260,9 @@ ElementalTile <- R6::R6Class(
               steps = tour,
               showBullets = FALSE,
               showProgress = TRUE,
-              nextLabel = private$globals$i18n$t("Next"),
-              prevLabel = private$globals$i18n$t("Previous"),
-              doneLabel = private$globals$i18n$t("Close"),
+              nextLabel = private$globals$i18n$static_t("Next"),
+              prevLabel = private$globals$i18n$static_t("Previous"),
+              doneLabel = private$globals$i18n$static_t("Close"),
               # tooltipClass is needed here to override the default styling that hides .introjs-tooltipReferenceLayer.
               # The tooltipReferenceLayer is hidden because of the switch_tab steps but those are not used here.
               tooltipClass = "page-settings-tour",

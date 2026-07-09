@@ -14,7 +14,7 @@
     {"en": "Keyboard shortcuts", "nl": "Sneltoetsen"},
     {"en": "Show this overview of keyboard shortcuts", "nl": "Toon dit sneltoetsen overzicht"},
     {"en": "Open the 'Preferences' dialog", "nl": "Open het 'Voorkeuren' menu"},
-    {"en": "Done", "nl": "Klaar"},
+    {"en": "Done", "nl": "Gereed"},
     {"en": "Start intro tour", "nl": "Start info tour"},
     {"en": "Change tile title", "nl": "Verander tegel titel"},
     {"en": "Add module", "nl": "Module toevoegen"},
@@ -34,6 +34,8 @@
     {"en": "Title", "nl": "Titel"},
     {"en": "Parameters", "nl": "Parameters"},
     {"en": "Dependencies", "nl": "Afhankelijkheden"},
-    {"en": "Choose value from another module", "nl": "Kies waarde uit andere module"}
+    {"en": "Choose value from another module", "nl": "Kies waarde uit andere module"},
+    {"en": "Sorry!", "nl": "Helaas!"},
+    {"en": "This module does not have an intro tour (yet).", "nl": "Voor deze module is (nog) geen info tour beschikbaar."}
   ]
 }

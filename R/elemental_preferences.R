@@ -4,28 +4,27 @@ ElementalPreferences <- R6::R6Class(
   
   private = list(
     
-    title = "Voorkeuren",
-
     # Override this for module-specific UI
     ui = function(){
       
       ns <- NS(private$id)
       div(
-        h1(private$title),
+        h1(private$globals$i18n$ui_t("Preferences")),
 
-        selectInput(ns("theme"), private$globals$t("Theme"), c("shiny", bslib::bootswatch_themes()), private$globals$preferences$theme), 
-        selectInput(ns("language"), private$globals$t("Language"), choices = private$globals$i18n$get_languages(), selected = private$globals$i18n$get_translation_language()),
+        selectInput(ns("theme"), private$globals$i18n$ui_t("Theme"), c("shiny", bslib::bootswatch_themes()), private$globals$preferences$theme), 
+        selectInput(ns("language"), private$globals$i18n$ui_t("Language"), choices = private$globals$i18n$get_all_languages(), selected = private$globals$i18n$get_current_language()),
         uiOutput(ns("tile_menu_ui")),
-        actionButton(ns("done"), "Gereed")
+        actionButton(ns("done"), private$globals$i18n$ui_t("Done"))
       )
     },
     
     server = function(input, output, session){
       ns <- session$ns
       
+      # this will reactively update when the language changes
       output$tile_menu_ui <- renderUI({
-        selectInput(ns("tile_menu"), private$globals$t("Tile actions"), choices = c(TRUE, FALSE) %>% setNames(c(private$globals$text["Folded in tile menu"], private$globals$text["Separate buttons in tile header"])), selected = private$globals$preferences$tile_menu)
-      }) %>% bindEvent(private$globals$text)
+        selectInput(ns("tile_menu"), private$globals$i18n$reactive_t("Tile actions"), choices = c(TRUE, FALSE) %>% setNames(c(private$globals$i18n$reactive_t("Folded in tile menu"), private$globals$i18n$reactive_t("Separate buttons in tile header"))), selected = private$globals$preferences$tile_menu)
+      }) 
       
       observe({
         self$remove()
@@ -41,12 +40,7 @@ ElementalPreferences <- R6::R6Class(
 
       observe({
         req(private$globals$preferences$language != input$language)
-        # this will update all the dynamic translations (inside span tags)
-        shiny.i18n::update_lang(input$language)
-        # this will update the translator object so any newly created translations are correct
-        private$globals$i18n$set_translation_language(input$language)
-        # this updates the set of reactive values with all texts for cases where a span tag cannot be used (such as title attributes on buttons)
-        private$globals$text <- fromJSON(app_sys("app/translation.json"))$translation %>% purrr::map(function(x){list(x[[input$language]]) %>% setNames(x[[1]])}) %>% unlist(recursive = FALSE)
+        private$globals$i18n$set_language(input$language)
         private$globals$preferences$language <- input$language
         serialize(preferences = private$globals$preferences)
       }) %>% bindEvent(input$language, ignoreInit = TRUE)

@@ -81,7 +81,7 @@ Do not call directly, but subclass Module instead
 This constructor will be called automatically when no constructor is present in child class
 If necessary, create a constructor in child class, then don't forget to call super$initialize()
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Module$new(id, title, globals, module_inputs, state)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Module$new(id, title, globals, module_inputs, params, state)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -94,6 +94,8 @@ If necessary, create a constructor in child class, then don't forget to call sup
 \item{\code{globals}}{A reference to a set of global, reactive, variables. Don't use these directly in your own modules}
 
 \item{\code{module_inputs}}{A names list of character vectors that map output variables of other modules to input variables for this module}
+
+\item{\code{params}}{A list of static parameters that modify a module without depending on other modules and not being the state.}
 
 \item{\code{state}}{A list of variables that describe the current state of the module. Don't put datasets in here, just simple variables.}
 }

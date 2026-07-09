@@ -11,13 +11,13 @@ ElementalAddModule <- R6::R6Class(
       
       ns <- NS(private$id)
       div(
-        h1(private$globals$t("Add module")),
+        h1(private$globals$i18n$ui_t("Add module")),
         selectInput(ns("module"), "Module", purrr::map_chr(private$globals$all_modules, "classname") %>% setNames(purrr::map_chr(private$globals$all_modules, "name"))),
         
-        p(private$globals$t("Module will be added to tile"), " ", strong(private$tile$get_title()), "."),
-        p(private$globals$t("Parameters and dependencies on other modules can be adjusted with"), " ", em(private$globals$t("Module settings")), " ", private$globals$t("in the tile menu.")),
-        div(actionButton(ns("ok"), private$globals$t("Ok")),
-            actionButton(ns("cancel"), private$globals$t("Cancel")),
+        p(private$globals$i18n$ui_t("Module will be added to tile"), " ", strong(private$tile$get_title()), "."),
+        p(private$globals$i18n$ui_t("Parameters and dependencies on other modules can be adjusted with"), " ", em(private$globals$i18n$ui_t("Module settings")), " ", private$globals$i18n$ui_t("in the tile menu.")),
+        div(actionButton(ns("ok"), private$globals$i18n$ui_t("Ok")),
+            actionButton(ns("cancel"), private$globals$i18n$ui_t("Cancel")),
             style = "float: right")
         
       )

@@ -27,7 +27,7 @@ The main App class that encapsulates the Shiny app
 \subsection{Method \code{new()}}{
 Initialize an App
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{App$new(modules, config)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{App$new(modules, config, translator = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -36,6 +36,8 @@ Initialize an App
 \item{\code{modules}}{A list of R6Generators, result of sourcing files}
 
 \item{\code{config}}{A list, usually from reading json, that contains the specification of the dashboard}
+
+\item{\code{translator}}{A subclass of ElementalTranslator, if you want to work with your own translation library, uses shiny.i18n package if NULL}
 }
 \if{html}{\out{</div>}}
 }

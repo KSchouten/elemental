@@ -151,7 +151,7 @@ Module <- R6::R6Class(
     #'   otherwise this generic message will appear saying that there is no introtour yet,
     #' @returns A list of steps, as required by the rintrojs package
     get_intro_tour = function(){
-      return(list(list(title = "Helaas!", intro = "Voor deze module is (nog) geen intro tour beschikbaar.")))
+      return(list(list(title = private$globals$i18n$static_t("Sorry!"), intro = private$globals$i18n$static_t("This module does not have an intro tour (yet)."))))
     },
     
     #' @description
