@@ -36,11 +36,6 @@ serialize <- function(modules = NULL, pages = NULL, state = NULL, preferences = 
     params$preferences <- preferences %>% toJSON() %>% jsonlite::prettify() %>% print()
   }
   
-  # serialize queryString
-  # new_query <- purrr::imap_chr(params, function(value, name){
-  #   stringr::str_c(name, "=", value)
-  # }) %>% stringr::str_c(collapse = "&")
-  
   if (!is.null(modules) && !is.null(pages) && !is.null(state)){
     new_query <- toJSON(params) %>% openssl::base64_encode()
     #new_query <- params %>% base::serialize(NULL) %>% openssl::base64_encode()

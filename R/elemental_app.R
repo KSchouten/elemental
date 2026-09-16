@@ -84,7 +84,11 @@ App <- R6::R6Class(
             
       # Autologin user (locally or with url) and load page setup
       # Currently loads default page setup from pages.json
-      private$globals$user <- "test"
+      if (interactive()){
+        private$globals$user <- "test"
+      } else {
+        
+      }
       
       
       
