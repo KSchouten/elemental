@@ -47,6 +47,7 @@ App <- R6::R6Class(
             align = "right",
             nav_item(actionLink(inputId = "change_page_title", label = span(isolate(private$globals$i18n$ui_t("Change page title"))), icon = icon("pen-to-square"))),
             nav_item(actionLink(inputId = "print_page", label = span(isolate(private$globals$i18n$ui_t("Print page"))), icon = icon("print"))),
+            nav_item(actionLink(inputId = "toggle_layout_controls", label = span(isolate(private$globals$i18n$ui_t("Toggle layout controls")), HTML(" <kbd>\\</kbd>")), icon = icon("table-columns"))),
             nav_item(actionLink(inputId = "preferences", label = span(isolate(private$globals$i18n$ui_t("Preferences")), HTML(" <kbd>V</kbd>")), icon = icon("sliders"))),
             nav_item(actionLink(inputId = "shortcuts", label = span(isolate(private$globals$i18n$ui_t("Keyboard shortcuts")),HTML(" <kbd>?</kbd>")), icon =icon("keyboard"))),
             nav_item(tags$a(shiny::icon("github"), span("Elemental @ GitHub"), href = "https://github.com/KSchouten/elemental", target = "_blank")),
@@ -280,6 +281,13 @@ App <- R6::R6Class(
         showModal(modalDialog(preferences$get_ui(), footer = NULL, easyClose = TRUE))
         private$globals$modal <- preferences
       }) %>% bindEvent(input$preferences, input$key_v, ignoreInit = TRUE)
+      
+      
+      # Toggle layout controls  ----
+      observe({
+        shinyjs::runjs("$('.layout-column').toggleClass('layout-visible')")
+      }) %>% bindEvent(input$toggle_layout_controls, ignoreInit = TRUE)
+      
       
       # Keyboard shortcuts ----
       observe({

@@ -13,6 +13,7 @@ ElementalShortcuts <- R6::R6Class(
         
         p(tags$kbd("?"), private$globals$i18n$static_t("Show this overview of keyboard shortcuts")),
         p(tags$kbd("V"), private$globals$i18n$static_t("Open the 'Preferences' dialog")),
+        p(tags$kbd("\\"), private$globals$i18n$static_t("Toggle layout controls")),
         
         actionButton(ns("done"), private$globals$i18n$static_t("Done")),
         uiOutput(ns("events"))
