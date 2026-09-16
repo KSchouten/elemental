@@ -135,7 +135,7 @@ ElementalTile <- R6::R6Class(
             }
             return false
           } else { 
-            return !evt.dragged.classList.contains('dropdown') && !evt.dragged.classList.contains('button') && (evt.related.className === 'nav-item' || (evt.related.classList.contains('first_button') && !evt.willInsertAfter));
+            return !evt.dragged.classList.contains('button') && (evt.related.className === 'nav-item' || (evt.related.classList.contains('dropdown') && !evt.willInsertAfter));
           }
         }"
           ))

@@ -202,7 +202,7 @@ App <- R6::R6Class(
         
         if (input$move_module$from_tile != input$move_module$to_tile){
           # need extra code to move modules between tiles
-          
+
           # in JS the dragged tab-head is already removed, otherwise nav_insert won't work properly
           #   we cannot use the select parameter (it doesn't work), probably because the inserted tab does not yet fully exist until we run the JS code below
           nav_insert(id = input$move_module$to_tile, position = "before", nav = nav_panel(
@@ -221,10 +221,10 @@ App <- R6::R6Class(
           # - move the new tab-panel in the right position so the order of the content matches the tab headers
           # - remove the old tab-panel itself
           shinyjs::runjs(stringr::str_c("setTimeout(function(){
-        var mod = $('#", input$move_module$from_tile, "').parent().parent().children().eq(1).children().eq(",input$move_module$from_index,").children().detach();
-        $('#", input$move_module$to_tile, "').parent().parent().children().eq(1).children().last().append($(mod));
-        $('#", input$move_module$to_tile, "').parent().parent().children().eq(1).children().eq(",input$move_module$to_index,").before($('#", input$move_module$to_tile, "').parent().parent().children().eq(1).children().last());
-        $('#", input$move_module$from_tile, "').parent().parent().children().eq(1).children().eq(",input$move_module$from_index,").remove();
+        var mod = $('#", input$move_module$from_tile, "').parent().parent().find('.tab-content').children().eq(",input$move_module$from_index,").children().detach();
+        $('#", input$move_module$to_tile, "').parent().parent().find('.tab-content').children().last().append($(mod));
+        $('#", input$move_module$to_tile, "').parent().parent().find('.tab-content').children().eq(",input$move_module$to_index,").before($('#", input$move_module$to_tile, "').parent().parent().find('.tab-content').children().last());
+        $('#", input$move_module$from_tile, "').parent().parent().find('.tab-content').children().eq(",input$move_module$from_index,").remove();
       }, 100);"))
           
           # if moving the selected tab away, then select the next tab in that panel
